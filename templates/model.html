@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>COVID-19- World Model</title>
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css">
+    <link rel="stylesheet" href="/static/bWLwgP.min.css"/>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/pikaday/css/pikaday.css">
+    <link rel="stylesheet" href="/static/modelStyles.css">
+</head>
+<body>
+<div class="container" style="max-width: 1440px; width: 100%">
+    <h1 style="text-align: center; margin-bottom: 0">COVID-19 Analysis</h1>
+    <div id="start-country" data-country="{{ country }}"></div>
+
+    <div class="row">
+        <div class="col-sm-3 text-center">
+            <h5><label for="datepicker">Last Updated:</label></h5>
+            <input type="text" id="datepicker" required>
+        </div>
+        <div class="col-sm-6 text-center" id="country-container">
+            <h5><label for="country">Select Country: <br></label></h5>
+            <select class="ui search selection dropdown" id="country">
+                <option value="{{ country }}">{{ country }}</option>
+            </select>
+        </div>
+        <div class="col-sm-3 text-center"></div>
+    </div>
+
+    <div class="row" style="background: #7AE2FB">
+        <div class="col-sm-3 text-center" style="height: 100%" id="current-cases-txt">
+            <h5>Current Cases:</h5>
+            <h3 style="font-weight: bold">0</h3>
+        </div>
+        <div class="col-sm-3 text-center" style="height: 100%" id="preds-cases-txt">
+            <h5>Total Predicted Cases: </h5>
+            <h3 style="font-weight: bold">0</h3>
+        </div>
+        <div class="col-sm-3 text-center" style="height: 100%" id="tom-cases-txt">
+            <h5>Total Cases Predicted Tomorrow:</h5>
+            <h3 style="font-weight: bold">0</h3>
+        </div>
+        <div class="col-sm-3" style="height: 100%" id="tom-new-cases-txt">
+            <h5 style="text-align: center">New Cases Predicted Tomorrow:</h5>
+            <h3 style="text-align: center; font-weight: bold">0</h3>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-3 text-center" id="pred-cases-txt">
+            <h5>Total Predicted Cases</h5>
+            <h3 style="font-weight: bold">0</h3>
+        </div>
+    </div>
+
+    <div class="row" style="height: 450px">
+        <div id="current-cases" class="col-xs-6 col-sm-4" style="height: 100%"></div>
+        <div id="pred-cases" class="col-xs-6 col-sm-8" style="height: 100%"></div>
+    </div>
+
+    <div id="log-cases"></div>
+    <div id="new-vs-total"></div>
+
+    <div class="row">
+        <div id="new-cases" class="col-xs-6 col-sm-5" style="height: 450px"></div>
+        <div id="new-pred-cases" class="col-xs-6 col-sm-7" style="height: 450px"></div>
+    </div>
+
+    <div id="growth-rate"></div>
+
+    <div class="row">
+        <div class="col-sm-3 text-center" style="height: 100%">
+            <div class="row">
+                <div class="col-sm-6 text-center" style="height: 100%" id="current-deaths-txt">
+                    <h5>Current Deaths:</h5>
+                    <h3 style="font-weight: bold"></h3>
+                </div>
+                <div class="col-sm-6 text-center" style="height: 100%" id="death-rate-txt">
+                    <h5>Crude Death Rate:</h5>
+                    <h3 style="font-weight: bold"></h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-3 text-center" style="height: 100%">
+            <div class="row">
+                <div class="col-sm-6 text-center" style="height: 100%" id="pred-deaths-txt">
+                    <h5>Total Predicted Cases Using Model: </h5>
+                    <h3 style="font-weight: bold"></h3>
+                </div>
+                <div class="col-sm-6 text-center" style="height: 100%" id="pred-deaths-dr-txt">
+                    <h5>Total Predicted Cases Using Death Rate: </h5>
+                    <h3 style="font-weight: bold"></h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-3 text-center" style="height: 100%" id="tom-deaths-txt">
+            <h5>Total Cases Predicted Tomorrow:</h5>
+            <h3 style="font-weight: bold"></h3>
+        </div>
+        <div class="col-sm-3" style="height: 100%" id="tom-new-deaths-txt">
+            <h5 style="text-align: center">New Cases Predicted Tomorrow:</h5>
+            <h3 style="text-align: center; font-weight: bold"></h3>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-5 text-center">
+            <div id="current-deaths"></div>
+        </div>
+        <div class="col-sm-7 text-center">
+            <div id="pred-deaths"></div>
+        </div>
+    </div>
+
+    <div id="death-rate"></div>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script src="/static/model.js"></script>
+<script src="/static/model_deaths.js"></script>
+<script src="https://cdn.plot.ly/plotly-latest.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/pikaday/pikaday.js" defer></script>
+{#<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>#}
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.js" defer></script>
+</body>
+</html>
