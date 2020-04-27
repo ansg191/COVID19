@@ -11,10 +11,10 @@
 </head>
 <body>
 <div class="container" style="max-width: 1440px; width: 100%">
-    <h1 style="text-align: center; margin-bottom: 0">COVID-19 Analysis</h1>
+    <h1 style="text-align: center; margin-bottom: 40px; font-size: 70px; margin-top: 20px">COVID-19 Analysis</h1>
     <div id="start-country" data-country="{{ country }}"></div>
 
-    <div class="row">
+    <div class="row" style="margin-bottom: 20px">
         <div class="col-sm-3 text-center">
             <h5><label for="datepicker">Last Updated:</label></h5>
             <input type="text" id="datepicker" required>
@@ -28,28 +28,32 @@
         <div class="col-sm-3 text-center"></div>
     </div>
 
-    <div class="row" style="background: #7AE2FB">
-        <div class="col-sm-3 text-center" style="height: 100%" id="current-cases-txt">
+    <div class="row current" style="padding-bottom: 10px">
+        <div class="col-sm-4 text-center" style="height: 100%" id="current-cases-txt">
             <h5>Current Cases:</h5>
-            <h3 style="font-weight: bold">0</h3>
+            <h3 class="number">0</h3>
         </div>
-        <div class="col-sm-3 text-center" style="height: 100%" id="preds-cases-txt">
-            <h5>Total Predicted Cases: </h5>
-            <h3 style="font-weight: bold">0</h3>
+        <div class="col-sm-4 text-center" id="double-rate-txt">
+            <h5>Doubling every:</h5>
+            <h3 class="number">0 days</h3>
         </div>
-        <div class="col-sm-3 text-center" style="height: 100%" id="tom-cases-txt">
-            <h5>Total Cases Predicted Tomorrow:</h5>
-            <h3 style="font-weight: bold">0</h3>
-        </div>
-        <div class="col-sm-3" style="height: 100%" id="tom-new-cases-txt">
-            <h5 style="text-align: center">New Cases Predicted Tomorrow:</h5>
-            <h3 style="text-align: center; font-weight: bold">0</h3>
+        <div class="col-sm-4 text-center" id="new-cases-txt">
+            <h5>New Cases Today:</h5>
+            <h3 class="number">0</h3>
         </div>
     </div>
-    <div class="row">
-        <div class="col-sm-3 text-center" id="pred-cases-txt">
+    <div class="row pred">
+        <div class="col-sm-4 text-center" id="pred-cases-txt">
             <h5>Total Predicted Cases</h5>
-            <h3 style="font-weight: bold">0</h3>
+            <h3 class="number">0</h3>
+        </div>
+        <div class="col-sm-4 text-center" style="height: 100%" id="compl-date-txt">
+            <h5>Predicted Completion Date:</h5>
+            <h3 class="number">0</h3>
+        </div>
+        <div class="col-sm-4 text-center" style="height: 100%" id="tom-new-cases-txt">
+            <h5>New Cases Predicted Tomorrow:</h5>
+            <h3 class="number">0</h3>
         </div>
     </div>
 

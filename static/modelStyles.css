@@ -1,1 +1,14 @@
-.test
+.number {
+    font-weight: bold;
+    margin-top: 0;
+}
+
+div.current {
+    background: #7AE2FB;
+    padding-bottom: 10px;
+}
+
+div.pred {
+    background: #f5b84e;
+    padding-bottom: 10px;
+}

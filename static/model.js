@@ -117,6 +117,12 @@ let getData = function (country) {
     });
 };
 
+Date.prototype.addDays = function(days) {
+    let date = new Date(this.valueOf());
+    date.setDate(date.getDate() + days);
+    return date;
+};
+
 let diff = function (x) {
     let arr = [0];
     for (let i = 1; i < x.length; i++) {
@@ -142,11 +148,12 @@ let shift = function (x) {
     return arr;
 };
 
-let updateCaseText = function (y, y0, currentDay) {
+let updateCaseText = function (y, x0, y0, currentDay) {
     $('#current-cases-txt').find('h3').text(y[y.length - 1].toLocaleString());
     $('#pred-cases-txt').find('h3').text(y0[y0.length - 1].toLocaleString());
-    $('#tom-cases-txt').find('h3').text(y0[currentDay + 1].toLocaleString());
     $('#tom-new-cases-txt').find('h3').text((y0[currentDay + 1] - y0[currentDay]).toLocaleString());
+    $('#double-rate-txt h3').text((y.length - y.findIndex(n => n > y[y.length - 1] / 2)).toLocaleString() + " days");
+    $('#compl-date-txt h3').text((new Date(2019, 11, 31)).addDays(x0[x0.length - 1]).toDateString())
 };
 
 let draw = function (data, fit) {
@@ -159,7 +166,7 @@ let draw = function (data, fit) {
     });
     let y0 = Object.values(fit);
     let currentDay = x[x.length - 1];
-    updateCaseText(y, y0, x0.indexOf(currentDay));
+    updateCaseText(y, x0, y0, x0.indexOf(currentDay));
     currentCases(x, y, x0, y0, currentDay);
     predCases(x, y, x0, y0);
     logCases(x, y, x0, y0);
