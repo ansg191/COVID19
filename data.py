@@ -13,8 +13,8 @@ data2 = dict()
 def get_data(date):
     if date in data:
         return data[date]
-    elif os.path.isfile(f"assets/df_{date}.csv"):
-        df = pd.read_csv(f"assets/df_{date}.csv")
+    elif os.path.isfile(f"assets/cases/df_{date}.csv"):
+        df = pd.read_csv(f"assets/cases/df_{date}.csv")
         data[date] = df
     else:
         print('Getting File...')
@@ -22,7 +22,7 @@ def get_data(date):
         df = df.fillna(0)
         if len(df.index) - 1 > date:
             df = df.iloc[:date + 1]
-        df.to_csv(f"assets/df_{len(df.index) - 1}.csv")
+        df.to_csv(f"assets/cases/df_{len(df.index) - 1}.csv")
         data[len(df.index) - 1] = df
     return df
 
@@ -30,8 +30,8 @@ def get_data(date):
 def get_data2(date):
     if date in data2:
         return data2[date]
-    elif os.path.isfile(f"assets/df2_{date}.csv"):
-        df = pd.read_csv(f"assets/df2_{date}.csv")
+    elif os.path.isfile(f"assets/deaths/df2_{date}.csv"):
+        df = pd.read_csv(f"assets/deaths/df2_{date}.csv")
         data2[date] = df
     else:
         print('Getting File...')
@@ -39,7 +39,7 @@ def get_data2(date):
         df = df.fillna(0)
         if len(df.index) - 1 > date:
             df = df.iloc[:date + 1]
-        df.to_csv(f"assets/df2_{len(df.index) - 1}.csv")
+        df.to_csv(f"assets/deaths/df2_{len(df.index) - 1}.csv")
         data2[len(df.index) - 1] = df
     return df
 
