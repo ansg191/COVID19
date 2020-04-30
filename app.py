@@ -16,8 +16,14 @@ def model():
     return render_template('model.html', country=country)
 
 
+@app.route('/world/nn')
+def nn():
+    country = request.args.get('country', 'United States', type=str)
+    return render_template('nn.html', country=country, data={1: 2, 3: 4})
+
+
 @app.route('/_get_country_cases')
-def test_json():
+def cases_json():
     country = request.args.get('country', 'United States', type=str)
     date = request.args.get('date', type=int)
     df = get_data(date)

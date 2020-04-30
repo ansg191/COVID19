@@ -1,36 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>COVID-19- World Model</title>
-    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css"/>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css">
-    <link rel="stylesheet" href="/static/bWLwgP.min.css"/>
-    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/pikaday/css/pikaday.css">
+{% extends 'COVID_Template.html' %}
+{% block title %}COVID19 - World Model{% endblock %}
+{% block styles %}
     <link rel="stylesheet" href="/static/modelStyles.css">
-</head>
-<body>
-<div class="container" style="max-width: 1440px; width: 100%">
-    <h1 style="text-align: center; margin-bottom: 40px; font-size: 70px; margin-top: 20px">COVID-19 Analysis</h1>
-    <div id="start-country" data-country="{{ country }}"></div>
-    {#    <div class="sidebar">#}
-    {#        Sticky#}
-    {#    </div>#}
-
-    <div class="row" style="margin-bottom: 20px">
-        <div class="col-sm-3 text-center">
-            <h5><label for="datepicker">Last Updated:</label></h5>
-            <input type="text" id="datepicker" required>
-        </div>
-        <div class="col-sm-6 text-center" id="country-container">
-            <h5><label for="country">Select Country: <br></label></h5>
-            <select class="ui search selection dropdown" id="country">
-                <option value="{{ country }}">{{ country }}</option>
-            </select>
-        </div>
-        <div class="col-sm-3 text-center"></div>
-    </div>
-
+{% endblock %}
+{% block content %}
     <div class="row current" style="padding-bottom: 10px">
         <div class="col-sm-4 text-center" style="height: 100%" id="current-cases-txt">
             <h5>Current Cases:</h5>
@@ -114,19 +87,9 @@
     </div>
 
     <div id="death-rate"></div>
-</div>
-<footer class="text-center panel-footer">
-    <p>Created by: Anshul Gupta | <a href="https://github.com/Ansh191/COVID19">Github</a> | Data Source: <a
-            href="https://ourworldindata.org">Our World In Data</a></p>
-</footer>
+{% endblock %}
 
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+{% block scripts %}
 <script src="/static/model.js"></script>
 <script src="/static/model_deaths.js"></script>
-<script src="https://cdn.plot.ly/plotly-latest.min.js" defer></script>
-<script src="https://cdn.jsdelivr.net/npm/pikaday/pikaday.js" defer></script>
-{#<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>#}
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" defer></script>
-<script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.js" defer></script>
-</body>
-</html>
+{% endblock %}
