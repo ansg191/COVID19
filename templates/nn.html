@@ -5,6 +5,8 @@
 {% endblock %}
 {% block content %}
     <script>
-        let test = {{ data }}
+        let store = {};
+        store.data = {{ data }};
+        store.fit = {{ fit }};
     </script>
 {% endblock %}

@@ -1,4 +1,5 @@
 from flask import Flask, render_template, jsonify, request
+from datetime import datetime
 
 from data import *
 
@@ -19,7 +20,13 @@ def model():
 @app.route('/world/nn')
 def nn():
     country = request.args.get('country', 'United States', type=str)
-    return render_template('nn.html', country=country, data={1: 2, 3: 4})
+    date = (datetime.today() - datetime(2019, 12, 31)).days
+    df = get_data(date)
+    fit = get_model(country, date)
+    return render_template('nn.html',
+                           country=country,
+                           data=df[df[country] > 0][country].to_dict(),
+                           fit=fit)
 
 
 @app.route('/_get_country_cases')
