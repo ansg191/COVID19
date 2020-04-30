@@ -7,7 +7,6 @@ store.options = {
 };
 
 $('document').ready(function () {
-    updateOptions(store.today);
     getData(store.country);
     store.picker = new Pikaday({
         field: document.getElementById('datepicker'),
@@ -28,6 +27,7 @@ $('document').ready(function () {
         }
     });
     $('.ui.search.selection.dropdown').css({'width': '75%', 'text-align': 'center', 'height': '50px'});
+    updateOptions(store.today);
 });
 
 let updateOptions = function (date) {
@@ -154,6 +154,7 @@ let updateCaseText = function (y, x0, y0, currentDay) {
     $('#tom-new-cases-txt').find('h3').text((y0[currentDay + 1] - y0[currentDay]).toLocaleString());
     $('#double-rate-txt h3').text((y.length - y.findIndex(n => n > y[y.length - 1] / 2)).toLocaleString() + " days");
     $('#compl-date-txt h3').text((new Date(2019, 11, 31)).addDays(x0[x0.length - 1]).toDateString())
+    $('#new-cases-txt h3').text((y[y.length - 1] - y[y.length - 2]).toLocaleString());
 };
 
 let draw = function (data, fit) {
@@ -198,7 +199,7 @@ let currentCases = function (x, y, x0, y0, currentDay) {
         yaxis: {title: 'Total Cases'},
         font: {family: "Courier New, monospace", size: 18},
         legend: {x: 0.01, y: 0.99, bgcolor: 'rgba(0,0,0,0}'},
-        plot_bgcolor: "rgba(56,252,255,0.24)"
+        // plot_bgcolor: "rgba(56,252,255,0.24)"
     };
     let config = {responsive: true};
     Plotly.newPlot('current-cases', [trace1, trace2], layout, config);

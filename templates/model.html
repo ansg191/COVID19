@@ -13,6 +13,9 @@
 <div class="container" style="max-width: 1440px; width: 100%">
     <h1 style="text-align: center; margin-bottom: 40px; font-size: 70px; margin-top: 20px">COVID-19 Analysis</h1>
     <div id="start-country" data-country="{{ country }}"></div>
+{#    <div class="sidebar">#}
+{#        Sticky#}
+{#    </div>#}
 
     <div class="row" style="margin-bottom: 20px">
         <div class="col-sm-3 text-center">
@@ -72,38 +75,32 @@
 
     <div id="growth-rate"></div>
 
-    <div class="row">
-        <div class="col-sm-3 text-center" style="height: 100%">
-            <div class="row">
-                <div class="col-sm-6 text-center" style="height: 100%" id="current-deaths-txt">
-                    <h5>Current Deaths:</h5>
-                    <h3 style="font-weight: bold"></h3>
-                </div>
-                <div class="col-sm-6 text-center" style="height: 100%" id="death-rate-txt">
-                    <h5>Crude Death Rate:</h5>
-                    <h3 style="font-weight: bold"></h3>
-                </div>
-            </div>
+    <div class="row current">
+        <div class="col-sm-4 text-center" style="height: 100%" id="current-deaths-txt">
+            <h5>Current Deaths:</h5>
+            <h3 class="number">0</h3>
         </div>
-        <div class="col-sm-3 text-center" style="height: 100%">
-            <div class="row">
-                <div class="col-sm-6 text-center" style="height: 100%" id="pred-deaths-txt">
-                    <h5>Total Predicted Cases Using Model: </h5>
-                    <h3 style="font-weight: bold"></h3>
-                </div>
-                <div class="col-sm-6 text-center" style="height: 100%" id="pred-deaths-dr-txt">
-                    <h5>Total Predicted Cases Using Death Rate: </h5>
-                    <h3 style="font-weight: bold"></h3>
-                </div>
-            </div>
+        <div class="col-sm-4 text-center" id="death-rate-txt">
+            <h5>Crude Death Rate:</h5>
+            <h3 class="number">0</h3>
         </div>
-        <div class="col-sm-3 text-center" style="height: 100%" id="tom-deaths-txt">
-            <h5>Total Cases Predicted Tomorrow:</h5>
-            <h3 style="font-weight: bold"></h3>
+        <div class="col-sm-4 text-center" id="new-deaths-txt">
+            <h5>New Deaths:</h5>
+            <h3 class="number">0</h3>
         </div>
-        <div class="col-sm-3" style="height: 100%" id="tom-new-deaths-txt">
-            <h5 style="text-align: center">New Cases Predicted Tomorrow:</h5>
-            <h3 style="text-align: center; font-weight: bold"></h3>
+    </div>
+    <div class="row pred">
+        <div class="col-sm-4 text-center" style="height: 100%" id="pred-deaths-txt">
+            <h5>Predicted Deaths using Model:</h5>
+            <h3 class="number">0</h3>
+        </div>
+        <div class="col-sm-4 text-center" id="pred-deaths-dr-txt">
+            <h5>Predicted Deaths using Death Rate:</h5>
+            <h3 class="number">0</h3>
+        </div>
+        <div class="col-sm-4 text-center" id="tom-new-deaths-txt">
+            <h5>New Deaths Predicted Tomorrow:</h5>
+            <h3 class="number">0</h3>
         </div>
     </div>
 
@@ -118,6 +115,10 @@
 
     <div id="death-rate"></div>
 </div>
+<footer class="text-center">
+    <p>Created by: Anshul Gupta</p>
+    <p>Github: </p>
+</footer>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 <script src="/static/model.js"></script>

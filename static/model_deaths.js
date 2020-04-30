@@ -45,8 +45,8 @@ let updateDeathText = function (y, y0, currentDay) {
     $("#death-rate-txt").find('h3').text((100 * dr).toLocaleString() + '%');
     $("#pred-deaths-txt").find('h3').text(y0[y0.length - 1].toLocaleString());
     $("#pred-deaths-dr-txt").find('h3').text(Math.round((y0Cases[y0Cases.length - 1] * dr)).toLocaleString());
-    $('#tom-deaths-txt').find('h3').text(y0[currentDay + 1].toLocaleString());
     $('#tom-new-deaths-txt').find('h3').text((y0[currentDay + 1] - y0[currentDay]).toLocaleString());
+    $('#new-deaths-txt h3').text((y[y.length - 1] - y[y.length - 2]).toLocaleString());
 };
 
 

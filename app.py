@@ -11,7 +11,7 @@ def hello_world():
 
 
 @app.route('/world/model')
-def test():
+def model():
     country = request.args.get('country', 'United States', type=str)
     return render_template('model.html', country=country)
 
