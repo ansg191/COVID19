@@ -1,10 +1,16 @@
 from flask import Flask, render_template, jsonify, request
+import multiprocessing as mp
 from datetime import datetime
 
 from nnData import *
 from data import *
 
 app = Flask(__name__)
+
+
+@app.before_first_request
+def before_first_request():
+    print("Hey im here")
 
 
 @app.route('/')
@@ -24,10 +30,10 @@ def nn():
     date = (datetime.today() - datetime(2019, 12, 31)).days
     df = get_data(date)
     df = df[df[country] > 0][country]
-    fit = get_prediction(df, country, date)
+    fit = get_prediction(parent, df, country, date)
     return render_template('nn.html',
                            country=country,
-                           data= df,
+                           data=df,
                            fit=fit)
 
 
@@ -76,4 +82,8 @@ def model_deaths():
 
 
 if __name__ == '__main__':
+    mp.set_start_method('spawn')
+    parent, child = mp.Pipe()
+    p = mp.Process(target=create_process, args=(child,))
+    p.start()
     app.run(debug=True, host='0.0.0.0', port=80)

@@ -1,12 +1,25 @@
-from tensorflow.keras.models import load_model
-
+from time import sleep
 from data import *
 
-model = load_model('model_01')
 preds = dict()
 
 
-def make_predictions(df: pd.DataFrame, end_day=150, minimum=0):
+def create_process(conn):
+    sleep(2)
+    from tensorflow.keras.models import load_model
+    model = load_model('model_01')
+    print('model loaded')
+    while True:
+        args = conn.recv()
+        func, args = globals()[args[0]], args[1:]
+        args = [model if x is 'model' else x for x in args]
+        result = func(args)
+        print('result')
+        if result is not None:
+            conn.send(result)
+
+
+def make_predictions(df: pd.DataFrame, model, end_day=150, minimum=0):
     a = df.describe().loc['max']
     current_day = len(df.index)
     predictions = pd.DataFrame(columns=a[a > minimum].index.values, index=range(current_day, end_day + 1))
@@ -21,7 +34,7 @@ def make_predictions(df: pd.DataFrame, end_day=150, minimum=0):
     return predictions
 
 
-def make_prediction(df: pd.Series, end_day=150):
+def make_prediction(df: pd.Series, model, end_day=150):
     current_day = df.index[-1] + 1
     predictions = pd.Series(index=range(current_day, end_day + 1))
     new_x = df.values
@@ -31,23 +44,23 @@ def make_prediction(df: pd.Series, end_day=150):
     return predictions
 
 
-def pred_to_file(day, end_day=150, minimum=0):
+def pred_to_file(day, model, end_day=150, minimum=0):
     df = get_data(day)
     file = f"assets/nn/preds_nn_{len(df.index) - 1}.csv"
-    preds = make_predictions(df, end_day=end_day, minimum=minimum)
+    preds = make_predictions(df, model, end_day=end_day, minimum=minimum)
     preds.to_csv(file)
     print(f'\nWrote to {file}')
 
 
-def pred_to_file2(day, extra_days=50, minimum=0):
+def pred_to_file2(day, model, extra_days=50, minimum=0):
     df = get_data(day)
     file = f"assets/nn/preds_nn_{len(df.index) - 1}.csv"
-    preds = make_predictions(df, end_day=len(df.index) - 1 + extra_days, minimum=minimum)
+    preds = make_predictions(df, model, end_day=len(df.index) - 1 + extra_days, minimum=minimum)
     preds.to_csv(file)
     print(f'\nWrote to {file}')
 
 
-def get_prediction(df, country, date):
+def get_prediction(conn, df, country, date):
     if date in preds:
         return preds[country]
     elif os.path.isfile(f"assets/nn/preds_nn_{date}.csv"):
@@ -55,6 +68,8 @@ def get_prediction(df, country, date):
         preds[date] = df
     else:
         print("File not created...")
-        pred = make_prediction(df, df.index[-1] + 50)
+        # pred = make_prediction(df, df.index[-1] + 50)
+        conn.send(["make_prediction", df, 'model', df.index[-1] + 50])
+        pred = conn.recv()
         preds[date] = pred
         return pred
