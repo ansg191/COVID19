@@ -8,6 +8,7 @@ deaths = 'https://covid.ourworldindata.org/data/ecdc/total_deaths.csv'
 
 data = dict()
 data2 = dict()
+preds = dict()
 
 
 def get_data(date):
@@ -75,3 +76,18 @@ def find_end_day(fit, percent):
         if fit.eval(x=i) >= goal:
             return i
         i += 1
+
+
+def get_prediction(country, date):
+    print(date)
+    if date in preds:
+        return preds[date][country]
+    elif os.path.isfile(f"assets/nn/preds_nn_{date}.csv"):
+        df = pd.read_csv(f"assets/nn/preds_nn_{date}.csv", index_col=0)
+        preds[date] = df
+        return df[country]
+    else:
+        print("File not created...")
+        # pred = make_prediction(df, df.index[-1] + 50)
+        # return pred
+        return None

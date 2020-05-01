@@ -1,4 +1,3 @@
-// let store = {};
 // store.today = Math.floor((new Date() - new Date(2019, 11, 31)) / 86400000);
 store.country = $('#start-country').data('country');
 store.options = {
@@ -8,8 +7,6 @@ store.options = {
 
 $('document').ready(function () {
     // getData(store.country);
-    draw(store.data, store.fit);
-    getDeathData();
     store.picker = new Pikaday({
         field: document.getElementById('datepicker'),
         minDate: new Date(2020, 0, 1),
@@ -25,13 +22,10 @@ $('document').ready(function () {
     });
     $('#country').dropdown({
         onChange: function (value, text, $selectedItem) {
-            if (text !== store.country) {
-                countryChange(value);
-            }
+            countryChange(value);
         }
     });
     $('.ui.search.selection.dropdown').css({'width': '75%', 'text-align': 'center', 'height': '50px'});
-    $('.ui.search.selection.dropdown .text').css({'font-size': '35px', 'top': '4px'});
     updateOptions(store.today);
 });
 
@@ -109,16 +103,20 @@ let getData = function (country) {
             }
         }),
         $.ajax({
-            url: "/_get_lmfit_cases",
+            url: "/_get_nn_cases",
             dataType: 'json',
             data: {country: country, date: store.today},
             success: function (fit) {
-                store.fit = fit;
+                if (fit['success']) {
+                    store.fit = fit['data'];
+                }
+                else {
+                    store.fit = {}
+                }
             }
         })
     ).then(function () {
         draw(store.data, store.fit);
-        getDeathData(country);
     });
 };
 
@@ -153,12 +151,13 @@ let shift = function (x) {
     return arr;
 };
 
-let updateCaseText = function (y, x0, y0, currentDay) {
+let updateCaseText = function (y, x0, y0) {
+    const max = Math.max(...y0);
     $('#current-cases-txt').find('h3').text(y[y.length - 1].toLocaleString());
-    $('#pred-cases-txt').find('h3').text(y0[y0.length - 1].toLocaleString());
-    $('#tom-new-cases-txt').find('h3').text((y0[currentDay + 1] - y0[currentDay]).toLocaleString());
+    $('#pred-cases-txt').find('h3').text(max.toLocaleString());
+    $('#tom-new-cases-txt').find('h3').text((y0[0] - y[y.length - 1]).toLocaleString());
     $('#double-rate-txt h3').text((y.length - y.findIndex(n => n > y[y.length - 1] / 2)).toLocaleString() + " days");
-    $('#compl-date-txt h3').text((new Date(2019, 11, 31)).addDays(x0[x0.length - 1]).toDateString())
+    $('#compl-date-txt h3').text((new Date(2019, 11, 31)).addDays(x0[y0.indexOf(max)]).toDateString())
     $('#new-cases-txt h3').text((y[y.length - 1] - y[y.length - 2]).toLocaleString());
 };
 
@@ -172,8 +171,8 @@ let draw = function (data, fit) {
     });
     let y0 = Object.values(fit);
     let currentDay = x[x.length - 1];
-    updateCaseText(y, x0, y0, x0.indexOf(currentDay));
-    currentCases(x, y, x0, y0, currentDay);
+    updateCaseText(y, x0, y0);
+    currentCases(x, y);
     predCases(x, y, x0, y0);
     logCases(x, y, x0, y0);
     newVsTotal(y, y0);
@@ -182,21 +181,13 @@ let draw = function (data, fit) {
     growthRate(x, y);
 };
 
-let currentCases = function (x, y, x0, y0, currentDay) {
+let currentCases = function (x, y) {
     let trace1 = {
         x: x,
         y: y,
         mode: 'markers',
         type: 'scatter',
         name: 'Data'
-    };
-    let index = x0.indexOf(currentDay);
-    let trace2 = {
-        x: x0.slice(0, index + 1),
-        y: y0.slice(0, index + 1),
-        mode: 'lines',
-        type: 'scatter',
-        name: 'Fit'
     };
     let layout = {
         title: {text: 'Total Cases', y: 0.9, x: 0.5, xanchor: 'center', yanchor: 'bottom'},
@@ -207,7 +198,7 @@ let currentCases = function (x, y, x0, y0, currentDay) {
         // plot_bgcolor: "rgba(56,252,255,0.24)"
     };
     let config = {responsive: true};
-    Plotly.newPlot('current-cases', [trace1, trace2], layout, config);
+    Plotly.newPlot('current-cases', [trace1], layout, config);
 };
 
 let predCases = function (x, y, x0, y0) {
@@ -249,8 +240,8 @@ let logCases = function (x, y, x0, y0) {
         name: 'Data'
     };
     let trace2 = {
-        x: x0.slice(index),
-        y: y0.slice(index),
+        x: x0,
+        y: y0,
         mode: 'lines',
         type: 'scatter',
         name: 'Prediction'

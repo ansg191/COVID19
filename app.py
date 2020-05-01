@@ -1,7 +1,7 @@
-from flask import Flask, render_template, jsonify, request
+from flask import Flask, render_template, jsonify, request, redirect, url_for
 from datetime import datetime
 
-from nnData import *
+# from nnData import *
 from data import *
 
 app = Flask(__name__)
@@ -9,26 +9,39 @@ app = Flask(__name__)
 
 @app.route('/')
 def hello_world():
-    return 'Hello World!'
+    return redirect(url_for('model'))
 
 
 @app.route('/world/model')
 def model():
     country = request.args.get('country', 'United States', type=str)
-    return render_template('model.html', country=country)
+    date = request.args.get('date', (datetime.today() - datetime(2019, 12, 31)).days, type=int)
+    df = get_data(date)
+    fit = get_model(country, date)
+    return render_template('model.html', country=country,
+                           data=df[df[country] > 0][country].to_dict(),
+                           fit=fit,
+                           date=date)
 
 
 @app.route('/world/nn')
 def nn():
     country = request.args.get('country', 'United States', type=str)
-    date = (datetime.today() - datetime(2019, 12, 31)).days
+    date = request.args.get('date', (datetime.today() - datetime(2019, 12, 31)).days, type=int)
     df = get_data(date)
     df = df[df[country] > 0][country]
-    fit = get_prediction(df, country, date)
+    fit = get_prediction(country, date)
+    if fit is None:
+        return render_template('nn.html',
+                               country=country,
+                               data=df.to_dict(),
+                               fit=dict(),
+                               date=date)
     return render_template('nn.html',
                            country=country,
-                           data= df,
-                           fit=fit)
+                           data=df.to_dict(),
+                           fit=fit.to_dict(),
+                           date=date)
 
 
 @app.route('/_get_country_cases')
@@ -73,6 +86,16 @@ def model_deaths():
     date = request.args.get('date', type=int)
     fit = get_death_model(country, date)
     return jsonify(fit)
+
+
+@app.route('/_get_nn_cases')
+def nn_json():
+    country = request.args.get('country', 'United States', type=str)
+    date = request.args.get('date', type=int)
+    fit = get_prediction(country, date)
+    if fit is not None:
+        return jsonify(data=fit.to_dict(), success=True)
+    return jsonify(data={}, success=False)
 
 
 if __name__ == '__main__':

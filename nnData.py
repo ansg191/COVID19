@@ -28,6 +28,8 @@ def make_prediction(df: pd.Series, end_day=150):
     for j in range(current_day, end_day + 1):
         new_x = np.append(new_x, model.predict(new_x[-4:].reshape((-1, 4))).astype('int64').flatten()[0])
         predictions[j] = new_x[-1]
+        print(f"\r{100 * (j / end_day)}% Complete", end='')
+    print()
     return predictions
 
 
@@ -49,12 +51,13 @@ def pred_to_file2(day, extra_days=50, minimum=0):
 
 def get_prediction(df, country, date):
     if date in preds:
-        return preds[country]
+        return preds[date][country]
     elif os.path.isfile(f"assets/nn/preds_nn_{date}.csv"):
-        df = pd.read_csv(f"assets/nn/preds_nn_{date}.csv")
+        df = pd.read_csv(f"assets/nn/preds_nn_{date}.csv", index_col=0)
         preds[date] = df
+        return df[country]
     else:
         print("File not created...")
-        pred = make_prediction(df, df.index[-1] + 50)
-        preds[date] = pred
-        return pred
+        # pred = make_prediction(df, df.index[-1] + 50)
+        # return pred
+        return None
