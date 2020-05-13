@@ -1,5 +1,5 @@
 {% extends 'COVID_Template.html' %}
-{% block title %}COVID19 - World Model{% endblock %}
+{% block title %}COVID19 - State Model{% endblock %}
 {% block styles %}
     <link rel="stylesheet" href="/static/modelStyles.css">
 {% endblock %}
@@ -90,7 +90,8 @@
 {% endblock %}
 
 {% block scripts %}
-<script src="/static/model.js"></script>
-<script src="/static/model_deaths.js"></script>
+    <script src="/static/states_model.js"></script>
+    <script src="/static/state_model_deaths.js"></script>
 {% endblock %}
-{% block datasource %}<a href="https://ourworldindata.org">Our World In Data</a>{% endblock %}
+
+{% block datasource %}<a href="https://covidtracking.com/">The COVID Tracking Project</a>{% endblock %}

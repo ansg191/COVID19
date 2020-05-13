@@ -1,15 +1,73 @@
 // let store = {};
 // store.today = Math.floor((new Date() - new Date(2019, 11, 31)) / 86400000);
-store.country = $('#start-country').data('country');
+store.state = $('#start-country').data('country');
 store.options = {
     countries: [],
     min_date: {}
 };
+let stateTable = {
+    'AK': 'Alaska',
+    'AL': 'Alabama',
+    'AR': 'Arkansas',
+    'AS': 'American Samoa',
+    'AZ': 'Arizona',
+    'CA': 'California',
+    'CO': 'Colorado',
+    'CT': 'Connecticut',
+    'DC': 'District of Columbia',
+    'DE': 'Delaware',
+    'FL': 'Florida',
+    'GA': 'Georgia',
+    'GU': 'Guam',
+    'HI': 'Hawaii',
+    'IA': 'Iowa',
+    'ID': 'Idaho',
+    'IL': 'Illinois',
+    'IN': 'Indiana',
+    'KS': 'Kansas',
+    'KY': 'Kentucky',
+    'LA': 'Louisiana',
+    'MA': 'Massachusetts',
+    'MD': 'Maryland',
+    'ME': 'Maine',
+    'MI': 'Michigan',
+    'MN': 'Minnesota',
+    'MO': 'Missouri',
+    'MP': 'Northern Mariana Islands',
+    'MS': 'Mississippi',
+    'MT': 'Montana',
+    'NC': 'North Carolina',
+    'ND': 'North Dakota',
+    'NE': 'Nebraska',
+    'NH': 'New Hampshire',
+    'NJ': 'New Jersey',
+    'NM': 'New Mexico',
+    'NV': 'Nevada',
+    'NY': 'New York',
+    'OH': 'Ohio',
+    'OK': 'Oklahoma',
+    'OR': 'Oregon',
+    'PA': 'Pennsylvania',
+    'PR': 'Puerto Rico',
+    'RI': 'Rhode Island',
+    'SC': 'South Carolina',
+    'SD': 'South Dakota',
+    'TN': 'Tennessee',
+    'TX': 'Texas',
+    'UT': 'Utah',
+    'VA': 'Virginia',
+    'VI': 'US Virgin Islands',
+    'VT': 'Vermont',
+    'WA': 'Washington',
+    'WI': 'Wisconsin',
+    'WV': 'West Virginia',
+    'WY': 'Wyoming'
+}
 
 $('document').ready(function () {
-    // getData(store.country);
+    // getData(store.state);
     draw(store.data, store.fit);
-    getDeathData(store.country);
+    getDeathData(store.state);
     store.picker = new Pikaday({
         field: document.getElementById('datepicker'),
         minDate: new Date(2020, 0, 1),
@@ -17,15 +75,15 @@ $('document').ready(function () {
         defaultDate: (new Date(2019, 11, 31)).addDays(store.today),
         setDefaultDate: true,
         onSelect: function (e) {
-            store.today = Math.round((e - new Date(2019, 11, 31)) / 86400000);
+            store.today = e.yyyymmdd();
             console.log("Changing date to ", store.today);
             updateOptions(store.today);
-            getData(store.country);
+            getData(store.state);
         }
     });
     $('#country').dropdown({
         onChange: function (value, text, $selectedItem) {
-            if (text !== store.country) {
+            if (text !== store.state) {
                 countryChange(value);
             }
         }
@@ -38,7 +96,7 @@ $('document').ready(function () {
 let updateOptions = function (date) {
     $.when(
         $.ajax({
-            url: "/_get_country_options",
+            url: "_options",
             dataType: 'json',
             data: {date: date},
             success: function (e) {
@@ -57,33 +115,36 @@ let updateOptions = function (date) {
         let values = [];
         for (let i = 0; i < store.options.countries.length; i++) {
             // console.log(store.options.countries);
-            let country = store.options.countries[i];
-            values.push({value: country, text: country, name: country});
+            let state = store.options.countries[i];
+            values.push({value: state, text: stateTable[state], name: stateTable[state]});
         }
         // console.log(values);
         let dropdown = $('#country');
         dropdown.dropdown('change values', values);
-        dropdown.dropdown('set selected', store.country);
-        $(".ui.search.selection.dropdown div:eq(1) .item").css('font-size', '15px');
+        dropdown.dropdown('set selected', store.state);
+        let items = $(".ui.search.selection.dropdown div:eq(1) .item")
+        items.css('font-size', '15px').each(function () {
+            $(this).text($(this).data('text'));
+        });
         $(".ui.search.selection.dropdown input").css({'top': '-20px', 'text-align': 'center', 'font-size': '35px'});
-        let parts = store.options.min_date[store.country].split('-');
+        let parts = store.options.min_date[store.state].split('-');
         store.picker.setMinDate(new Date(parts[0], parts[1] - 1, parts[2]));
     })
 };
 
-let countryChange = function (country) {
-    if (store.options.countries.includes(country)) {
-        console.log("Switching to ", country);
+let countryChange = function (state) {
+    if (store.options.countries.includes(state)) {
+        console.log("Switching to ", state);
         $("#country").blur();
-        store.country = country;
+        store.state = state;
         $('.ui.search.selection.dropdown .text').css({'font-size': '35px', 'top': '4px'});
-        let parts = store.options.min_date[store.country].split('-');
+        let parts = store.options.min_date[store.state].split('-');
         store.picker.setMinDate(new Date(parts[0], parts[1] - 1, parts[2]));
-        getData(country);
+        getData(state);
     }
 };
 
-let getData = function (country) {
+let getData = function (state) {
     // $.ajax({
     //     url: "_get_country_cases",
     //     dataType: 'json',
@@ -101,32 +162,38 @@ let getData = function (country) {
     // });
     $.when(
         $.ajax({
-            url: "/_get_country_cases",
+            url: "_cases",
             dataType: 'json',
-            data: {country: country, date: store.today},
+            data: {state: state, date: store.today},
             success: function (data) {
                 store.data = data;
             }
         }),
         $.ajax({
-            url: "/_get_lmfit_cases",
+            url: "_lmfit_cases",
             dataType: 'json',
-            data: {country: country, date: store.today},
+            data: {state: state, date: store.today},
             success: function (fit) {
                 store.fit = fit;
             }
         })
     ).then(function () {
         draw(store.data, store.fit);
-        getDeathData(country);
+        getDeathData(store.state);
     });
 };
 
-Date.prototype.addDays = function(days) {
+Date.prototype.addDays = function (days) {
     let date = new Date(this.valueOf());
     date.setDate(date.getDate() + days);
     return date;
 };
+
+Date.prototype.yyyymmdd = function () {
+    let mm = this.getMonth() + 1;
+    let dd = this.getDate();
+    return parseInt([this.getFullYear(), (mm > 9 ? '' : '0') + mm, (dd > 9 ? '' : '0') + dd].join(''));
+}
 
 let diff = function (x) {
     let arr = [0];
@@ -158,7 +225,7 @@ let updateCaseText = function (y, x0, y0, currentDay) {
     $('#pred-cases-txt').find('h3').text(y0[y0.length - 1].toLocaleString());
     $('#tom-new-cases-txt').find('h3').text((y0[currentDay + 1] - y0[currentDay]).toLocaleString());
     $('#double-rate-txt h3').text((y.length - y.findIndex(n => n > y[y.length - 1] / 2)).toLocaleString() + " days");
-    $('#compl-date-txt h3').text((new Date(2019, 11, 31)).addDays(x0[x0.length - 1]).toDateString())
+    $('#compl-date-txt h3').text((new Date(2020, 2, 4)).addDays(x0[x0.length - 1]).toDateString())
     $('#new-cases-txt h3').text((y[y.length - 1] - y[y.length - 2]).toLocaleString());
 };
 

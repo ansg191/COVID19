@@ -44,6 +44,67 @@ def nn():
                            date=date)
 
 
+@app.route('/state/model')
+def state_model():
+    s = request.args.get('state', 'CA', type=str)
+    date = request.args.get('date', int(datetime.today().strftime("%Y%m%d")), type=int)
+    df = get_state_data(s, date)
+    fit = get_state_model(s, date, 'positive')
+    return render_template('state_model.html', country=s,
+                           data=df['positive'].to_dict(),
+                           fit=fit,
+                           date=date)
+
+
+@app.route('/state/_cases')
+def state_cases():
+    s = request.args.get('state', 'CA', type=str)
+    date = request.args.get('date', int(datetime.today().strftime("%Y%m%d")), type=int)
+    df = get_state_data(s, date)
+    return jsonify(df['positive'].to_dict())
+
+
+@app.route('/state/_deaths')
+def state_deaths():
+    s = request.args.get('state', 'CA', type=str)
+    date = request.args.get('date', int(datetime.today().strftime("%Y%m%d")), type=int)
+    df = get_state_data(s, date)
+    return jsonify(df['death'].to_dict())
+
+
+@app.route('/state/_lmfit_cases')
+def cases_lmfit():
+    s = request.args.get('state', 'CA', type=str)
+    date = request.args.get('date', int(datetime.today().strftime("%Y%m%d")), type=int)
+    fit = get_state_model(s, date, 'positive')
+    return jsonify(fit)
+
+
+@app.route('/state/_lmfit_deaths')
+def deaths_lmfit():
+    s = request.args.get('state', 'CA', type=str)
+    date = request.args.get('date', int(datetime.today().strftime("%Y%m%d")), type=int)
+    fit = get_state_model(s, date, 'death')
+    return jsonify(fit)
+
+
+@app.route('/state/_options')
+def state_options():
+    date = request.args.get('date', int(datetime.today().strftime("%Y%m%d")), type=int)
+    df = pd.read_csv('https://covidtracking.com/api/v1/states/daily.csv')
+    df = df[df['date'] >= 20200304]
+    df = df[df['date'] <= date]
+    df = pd.DataFrame(df.values[::-1], df.index, df.columns)
+    df = df.fillna(0)
+    indexes = dict()
+    for s in df.groupby('state').groups.keys():
+        sdf = df[df['state'] == s][df[df['state'] == s]['positive'] > 100]
+        if len(sdf.index) != 0:
+            tmp = str(sdf['date'].iloc[0])
+            indexes[s] = '-'.join([tmp[:4], tmp[4:6], tmp[6:]])
+    return jsonify(countries=list(indexes.keys()), min_date=indexes)
+
+
 @app.route('/_get_country_cases')
 def cases_json():
     country = request.args.get('country', 'United States', type=str)
