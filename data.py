@@ -2,27 +2,11 @@ import pandas as pd
 import numpy as np
 from lmfit.models import StepModel
 import os.path
-import subprocess as sp
 
 cases = 'https://covid.ourworldindata.org/data/ecdc/total_cases.csv'
 deaths = 'https://covid.ourworldindata.org/data/ecdc/total_deaths.csv'
-john_hopkins = "https://github.com/CSSEGISandData/COVID-19.git"
-repo_location = "assets/john_hopkins"
-
-
-def create_git():
-    pop = sp.Popen(f"sudo git init; sudo git pull {john_hopkins} master", cwd=repo_location, shell=True)
-    pop.wait()
-    pop.kill()
-
-
-def update_git():
-    if os.path.isdir(repo_location + "/.git"):
-        pop = sp.Popen("sudo git fetch --all; sudo git reset --hard origin/master", cwd=repo_location, shell=True)
-        pop.wait()
-        pop.kill()
-    else:
-        create_git()
+john_hopkins_cases = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data" \
+                     "/csse_covid_19_time_series/time_series_covid19_confirmed_US.csv "
 
 
 def state(s):
@@ -31,11 +15,12 @@ def state(s):
 
 data = dict()
 data2 = dict()
+
 preds = dict()
 
 state_data = dict()
 
-update_git()
+hopkins_cases = dict()
 
 
 def get_data(date):
@@ -105,6 +90,23 @@ def get_state_model(s, date, tp):
     complall = find_end_day(fit, 1)
     x0 = np.array(list(range(0, complall + 1)))
     return dict(zip(x0.tolist(), fit.eval(x=x0).astype('int64').tolist()))
+
+
+def get_county_data(s, county, date):
+    if date in hopkins_cases:
+        df = hopkins_cases[date]
+        return df[(df['Province_State'] == s) & (df['Admin2'] == county)].iloc[0, 11:]
+    elif os.path.isfile(f"assets/john_hopkins/cases_{date}"):
+        df = pd.read_csv(f"assets/john_hopkins/cases_{date}", index_col=1)
+        hopkins_cases[date] = df
+        return df[(df['Province_State'] == s) & (df['Admin2'] == county)].iloc[0, 11:]
+    else:
+        df = pd.read_csv(john_hopkins_cases)
+        if len(df.columns) - 11 > date:
+            df = df.iloc[:, :date + 11]
+        df.to_csv(f"assets/john_hopkins/cases_{len(df.columns) - 11}.csv")
+        hopkins_cases[len(df.columns) - 1] = df
+        return df[(df['Province_State'] == s) & (df['Admin2'] == county)].iloc[0, 11:]
 
 
 def get_fit(df, country):
