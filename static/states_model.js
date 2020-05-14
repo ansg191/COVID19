@@ -75,7 +75,7 @@ $('document').ready(function () {
         defaultDate: (new Date(2019, 11, 31)).addDays(store.today),
         setDefaultDate: true,
         onSelect: function (e) {
-            store.today = e.yyyymmdd();
+            store.today = e.yyyymmdd() - 1;
             console.log("Changing date to ", store.today);
             updateOptions(store.today);
             getData(store.state);
@@ -116,7 +116,7 @@ let updateOptions = function (date) {
         for (let i = 0; i < store.options.countries.length; i++) {
             // console.log(store.options.countries);
             let state = store.options.countries[i];
-            values.push({value: state, text: stateTable[state], name: stateTable[state]});
+            values.push({value: state, text: state, name: state});
         }
         // console.log(values);
         let dropdown = $('#country');
@@ -192,7 +192,7 @@ Date.prototype.addDays = function (days) {
 Date.prototype.yyyymmdd = function () {
     let mm = this.getMonth() + 1;
     let dd = this.getDate();
-    return parseInt([this.getFullYear(), (mm > 9 ? '' : '0') + mm, (dd > 9 ? '' : '0') + dd].join(''));
+    return parseInt([this.getFullYear() - 2000, (mm > 9 ? '' : '0') + mm, (dd > 9 ? '' : '0') + dd].join(''));
 }
 
 let diff = function (x) {

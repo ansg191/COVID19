@@ -110,7 +110,7 @@ def get_us_data2(date):
         return df2
 
 
-def get_state_data(s: str, date: int):
+def get_state_data2(s: str, date: int):
     s = s.upper()
     if (s, date) in state_data:
         return state_data[(s, date)]
@@ -129,21 +129,21 @@ def get_state_data(s: str, date: int):
     return df
 
 
-def get_state_data2(s: str, date: int):
+def get_state_data(s: str, date: int):
     df = get_us_data(date)
     df2 = get_us_data2(date)
     tmp = pd.concat([df[df['Province_State'] == s].sum(), df2[df2['Province_State'] == s].sum()],
-                    axis=1).reset_index()
-    tmp.columns = ['Date', 'Cases', 'Deaths']
+                    axis=1)
+    tmp.columns = ['Cases', 'Deaths']
     populations[s] = tmp.iloc[-1, 1]
-    return tmp.iloc[11:-1].apply(pd.to_numeric)
+    return tmp.iloc[11:-1].apply(pd.to_numeric).reset_index()
 
 
 def get_state_fit(df, tp):
     x, y = df.index.values, df[tp].values
     mod = StepModel(form='logistic')
     pars = mod.guess(y, x=x)
-    fit = mod.fit(y, pars, x=x, weights=(1 / (y + 1e-3))[::-1])
+    fit = mod.fit(y, pars, x=x, weights=(1 / (x + 1e-3))[::-1])
     return fit
 
 
@@ -158,28 +158,37 @@ def get_state_model(s, date, tp):
 def get_state_options(date):
     df = get_us_data(date)
     tmp = df.groupby('Province_State').sum()
+    tmp = tmp.select_dtypes(['number'])
     tmp2 = tmp.iloc[:, -1] > 100
     states = tmp2.loc[tmp2].index.values
     min_dates = tmp.iloc[:, 5:].gt(100).T.idxmax().apply(date_to_str)
     return states, min_dates
 
 
-
 def get_county_data(s, county, date):
-    if date in US_data:
-        df = US_data[date]
-        return df[(df['Province_State'] == s) & (df['Admin2'] == county)].iloc[0, 11:]
-    elif os.path.isfile(f"assets/john_hopkins/cases_{date}"):
-        df = pd.read_csv(f"assets/john_hopkins/cases_{date}", index_col=1)
-        US_data[date] = df
-        return df[(df['Province_State'] == s) & (df['Admin2'] == county)].iloc[0, 11:]
-    else:
-        df = pd.read_csv(US_cases)
-        if len(df.columns) - 11 > date:
-            df = df.iloc[:, :date + 11]
-        df.to_csv(f"assets/john_hopkins/cases_{len(df.columns) - 11}.csv")
-        US_data[len(df.columns) - 1] = df
-        return df[(df['Province_State'] == s) & (df['Admin2'] == county)].iloc[0, 11:]
+    df = get_us_data(date)
+    df2 = get_us_data2(date)
+    tmp = pd.concat([df[(df['Province_State'] == s) & (df['Admin2'] == county)].iloc[0, 11:],
+                     df2[(df2['Province_State'] == s) & (df2['Admin2'] == county)].iloc[0, 11:]], axis=1)
+    tmp.columns = ['Cases', 'Deaths']
+    populations[(s, county)] = tmp.iloc[-1, 1]
+    return tmp.iloc[:-1].apply(pd.to_numeric).reset_index()
+
+
+def get_county_fit(df, tp):
+    x, y = df.index.values, df[tp].values
+    mod = StepModel(form='logistic')
+    pars = mod.guess(y, x=x)
+    fit = mod.fit(y, pars, x=x, weights=(1 / (x + 1e-3))[::-1])
+    return fit
+
+
+def get_county_model(s, county, date, tp):
+    df = get_county_data(s, county, date)
+    fit = get_county_fit(df, tp)
+    complall = find_end_day(fit, 1)
+    x0 = np.array(list(range(0, complall + 1)))
+    return dict(zip(x0.tolist(), fit.eval(x=x0).astype('int64').tolist()))
 
 
 def get_fit(df, country):
