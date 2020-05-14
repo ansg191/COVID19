@@ -5,12 +5,26 @@ import os.path
 
 cases = 'https://covid.ourworldindata.org/data/ecdc/total_cases.csv'
 deaths = 'https://covid.ourworldindata.org/data/ecdc/total_deaths.csv'
-john_hopkins_cases = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data" \
-                     "/csse_covid_19_time_series/time_series_covid19_confirmed_US.csv "
+US_cases = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data" \
+           "/csse_covid_19_time_series/time_series_covid19_confirmed_US.csv"
+US_deaths = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data" \
+            "/csse_covid_19_time_series/time_series_covid19_deaths_US.csv"
 
 
 def state(s):
     return f'http://covidtracking.com/api/v1/states/{s}/daily.csv'
+
+
+def date_to_int(s: str):
+    padded = [x.zfill(2) for x in s.split('/')]
+    return int(''.join([padded[i] for i in [2, 0, 1]]))
+
+
+def date_to_str(d):
+    s = str(d)
+    s = [s[i:i + 2] for i in range(0, len(s), 2)]
+    s[0] = "20" + s[0]
+    return '-'.join(s)
 
 
 data = dict()
@@ -20,7 +34,10 @@ preds = dict()
 
 state_data = dict()
 
-hopkins_cases = dict()
+US_data = dict()
+US_data2 = dict()
+
+populations = dict()
 
 
 def get_data(date):
@@ -57,6 +74,42 @@ def get_data2(date):
     return df
 
 
+def get_us_data(date):
+    if date in US_data:
+        df = US_data[date]
+        return df
+    elif os.path.isfile(f"assets/john_hopkins/cases_{date}.csv"):
+        df = pd.read_csv(f"assets/john_hopkins/cases_{date}.csv", index_col=0)
+        US_data[date] = df
+        return df
+    else:
+        print("Getting data...")
+        df = pd.read_csv(US_cases)
+        df.columns.values[11:] = df.columns[11:].map(date_to_int).values
+        df = df.T[np.concatenate([np.array([True] * 11), df.T.index[11:] <= date])].T
+        US_data[df.columns[-1]] = df
+        df.to_csv(f"assets/john_hopkins/cases_{df.columns[-1]}.csv")
+        return df
+
+
+def get_us_data2(date):
+    if date in US_data2:
+        df2 = US_data2[date]
+        return df2
+    elif os.path.isfile(f"assets/john_hopkins/deaths_{date}.csv"):
+        df2 = pd.read_csv(f"assets/john_hopkins/deaths_{date}.csv", index_col=0)
+        US_data2[date] = df2
+        return df2
+    else:
+        print("Getting data...")
+        df2 = pd.read_csv(US_deaths)
+        df2.columns.values[12:] = df2.columns[12:].map(date_to_int).values
+        df2 = df2.T[np.concatenate([np.array([True] * 12), df2.T.index[12:] <= date])].T
+        US_data2[df2.columns[-1]] = df2
+        df2.to_csv(f"assets/john_hopkins/deaths_{df2.columns[-1]}.csv")
+        return df2
+
+
 def get_state_data(s: str, date: int):
     s = s.upper()
     if (s, date) in state_data:
@@ -76,6 +129,16 @@ def get_state_data(s: str, date: int):
     return df
 
 
+def get_state_data2(s: str, date: int):
+    df = get_us_data(date)
+    df2 = get_us_data2(date)
+    tmp = pd.concat([df[df['Province_State'] == s].sum(), df2[df2['Province_State'] == s].sum()],
+                    axis=1).reset_index()
+    tmp.columns = ['Date', 'Cases', 'Deaths']
+    populations[s] = tmp.iloc[-1, 1]
+    return tmp.iloc[11:-1].apply(pd.to_numeric)
+
+
 def get_state_fit(df, tp):
     x, y = df.index.values, df[tp].values
     mod = StepModel(form='logistic')
@@ -92,20 +155,30 @@ def get_state_model(s, date, tp):
     return dict(zip(x0.tolist(), fit.eval(x=x0).astype('int64').tolist()))
 
 
+def get_state_options(date):
+    df = get_us_data(date)
+    tmp = df.groupby('Province_State').sum()
+    tmp2 = tmp.iloc[:, -1] > 100
+    states = tmp2.loc[tmp2].index.values
+    min_dates = tmp.iloc[:, 5:].gt(100).T.idxmax().apply(date_to_str)
+    return states, min_dates
+
+
+
 def get_county_data(s, county, date):
-    if date in hopkins_cases:
-        df = hopkins_cases[date]
+    if date in US_data:
+        df = US_data[date]
         return df[(df['Province_State'] == s) & (df['Admin2'] == county)].iloc[0, 11:]
     elif os.path.isfile(f"assets/john_hopkins/cases_{date}"):
         df = pd.read_csv(f"assets/john_hopkins/cases_{date}", index_col=1)
-        hopkins_cases[date] = df
+        US_data[date] = df
         return df[(df['Province_State'] == s) & (df['Admin2'] == county)].iloc[0, 11:]
     else:
-        df = pd.read_csv(john_hopkins_cases)
+        df = pd.read_csv(US_cases)
         if len(df.columns) - 11 > date:
             df = df.iloc[:, :date + 11]
         df.to_csv(f"assets/john_hopkins/cases_{len(df.columns) - 11}.csv")
-        hopkins_cases[len(df.columns) - 1] = df
+        US_data[len(df.columns) - 1] = df
         return df[(df['Province_State'] == s) & (df['Admin2'] == county)].iloc[0, 11:]
 
 
