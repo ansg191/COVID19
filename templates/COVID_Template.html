@@ -106,17 +106,49 @@
             </select>
         </div>
         <div class="col-sm-3 text-center" id="population">
-            {% if url[1] != "world" %}
-                <h5>Population:</h5>
+            {% if url[1] != 'world' %}
+                <h5>Population</h5>
+            {% endif %}
+            {% if url[1] == "state" %}
                 <h3 class="number">{{ population[country] | number }}</h3>
+            {% elif url[1] == "county" %}
+                <h3 class="number">{{ population[', '.join([county, country])] | number }}</h3>
             {% endif %}
         </div>
     </div>
 
+    <div class="row current" style="padding-bottom: 10px">
+        <div class="col-sm-4 text-center" style="height: 100%" id="current-cases-txt">
+            <h5>Current Cases:</h5>
+            <h3 class="number">0</h3>
+        </div>
+        <div class="col-sm-4 text-center" id="double-rate-txt">
+            <h5>Doubling every:</h5>
+            <h3 class="number">0 days</h3>
+        </div>
+        <div class="col-sm-4 text-center" id="new-cases-txt">
+            <h5>New Cases Today:</h5>
+            <h3 class="number">0</h3>
+        </div>
+    </div>
+    <div class="row pred">
+        <div class="col-sm-4 text-center" id="pred-cases-txt">
+            <h5>Total Predicted Cases:</h5>
+            <h3 class="number">0</h3>
+        </div>
+        <div class="col-sm-4 text-center" style="height: 100%" id="compl-date-txt">
+            <h5>Predicted Completion Date:</h5>
+            <h3 class="number">0</h3>
+        </div>
+        <div class="col-sm-4 text-center" style="height: 100%" id="tom-new-cases-txt">
+            <h5>New Cases Predicted Tomorrow:</h5>
+            <h3 class="number">0</h3>
+        </div>
+    </div>
     {% block content %}{% endblock %}
 </div>
-<footer class="text-center panel-footer">
-    <p>Created by: Anshul Gupta | <a href="https://github.com/Ansh191/COVID19">Github</a> | Data Source:
+<footer class="text-center panel-footer" style="margin: 30px 0 100px 0">
+    <p style="font-size: 18px">Created by: Anshul Gupta | <a href="https://github.com/Ansh191/COVID19">Github</a> | Data Source:
         {% block datasource %}{% endblock %}</p>
 </footer>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>

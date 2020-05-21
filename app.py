@@ -22,7 +22,7 @@ def model():
                            data=df[df[country] > 0][country].to_dict(),
                            fit=fit,
                            date=date,
-                           population=populations)
+                           population=population_state)
 
 
 @app.route('/world/nn')
@@ -38,13 +38,13 @@ def nn():
                                data=df.to_dict(),
                                fit=dict(),
                                date=date,
-                               population=populations)
+                               population=population_state)
     return render_template('nn.html',
                            country=country,
                            data=df.to_dict(),
                            fit=fit.to_dict(),
                            date=date,
-                           population=populations)
+                           population=population_state)
 
 
 @app.route('/state/model')
@@ -57,7 +57,7 @@ def state_model():
                            data=df['Cases'].to_dict(),
                            fit=fit,
                            date=date,
-                           population=populations)
+                           population=population_state)
 
 
 @app.route('/state/_cases')
@@ -122,7 +122,7 @@ def county_model():
                            data=df['Cases'].to_dict(),
                            fit=fit,
                            date=date,
-                           population=populations)
+                           population=population_county)
 
 
 @app.route('/county/_cases')

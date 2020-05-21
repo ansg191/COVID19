@@ -37,7 +37,8 @@ state_data = dict()
 US_data = dict()
 US_data2 = dict()
 
-populations = dict()
+population_state = dict()
+population_county = dict()
 
 
 def get_data(date):
@@ -135,7 +136,7 @@ def get_state_data(s: str, date: int):
     tmp = pd.concat([df[df['Province_State'] == s].sum(), df2[df2['Province_State'] == s].sum()],
                     axis=1)
     tmp.columns = ['Cases', 'Deaths']
-    populations[s] = tmp.iloc[-1, 1]
+    population_state[s] = tmp.iloc[-1, 1]
     return tmp.iloc[11:-1].apply(pd.to_numeric).reset_index()
 
 
@@ -156,7 +157,7 @@ def get_state_model(s, date, tp):
 
 
 def get_state_options(date):
-    global populations
+    global population_state
     df = get_us_data(date)
     df2 = get_us_data2(date)
     tmp = df.groupby('Province_State').sum()
@@ -164,8 +165,8 @@ def get_state_options(date):
     tmp2 = tmp.iloc[:, -1].sort_values(ascending=False) > 100
     states = tmp2.loc[tmp2].index.values
     min_dates = tmp.iloc[:, 5:].gt(100).T.idxmax().apply(date_to_str)
-    populations = {**populations, **df2.groupby('Province_State')['Population'].sum().to_dict()}
-    return states, min_dates, populations
+    population_state = {**population_state, **df2.groupby('Province_State')['Population'].sum().to_dict()}
+    return states, min_dates, population_state
 
 
 def get_county_data(s, county, date):
@@ -174,7 +175,7 @@ def get_county_data(s, county, date):
     tmp = pd.concat([df[(df['Province_State'] == s) & (df['Admin2'] == county)].iloc[0, 11:],
                      df2[(df2['Province_State'] == s) & (df2['Admin2'] == county)].iloc[0, 11:]], axis=1)
     tmp.columns = ['Cases', 'Deaths']
-    populations[(s, county)] = tmp.iloc[-1, 1]
+    population_county[', '.join([county, s])] = tmp.iloc[-1, 1]
     return tmp.iloc[:-1].apply(pd.to_numeric).reset_index()
 
 
