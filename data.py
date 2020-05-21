@@ -156,13 +156,16 @@ def get_state_model(s, date, tp):
 
 
 def get_state_options(date):
+    global populations
     df = get_us_data(date)
+    df2 = get_us_data2(date)
     tmp = df.groupby('Province_State').sum()
     tmp = tmp.select_dtypes(['number'])
-    tmp2 = tmp.iloc[:, -1] > 100
+    tmp2 = tmp.iloc[:, -1].sort_values(ascending=False) > 100
     states = tmp2.loc[tmp2].index.values
     min_dates = tmp.iloc[:, 5:].gt(100).T.idxmax().apply(date_to_str)
-    return states, min_dates
+    populations = {**populations, **df2.groupby('Province_State')['Population'].sum().to_dict()}
+    return states, min_dates, populations
 
 
 def get_county_data(s, county, date):
@@ -189,6 +192,11 @@ def get_county_model(s, county, date, tp):
     complall = find_end_day(fit, 1)
     x0 = np.array(list(range(0, complall + 1)))
     return dict(zip(x0.tolist(), fit.eval(x=x0).astype('int64').tolist()))
+
+
+def get_county_options(date):
+    df = get_us_data(date)
+    
 
 
 def get_fit(df, country):

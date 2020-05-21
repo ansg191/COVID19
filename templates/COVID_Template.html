@@ -45,31 +45,45 @@
                     </a>
                     <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                         <a class="dropdown-item" href="/world/model">Logistic Fit</a>
-                        <a class="dropdown-item" href="/world/nn">Nerual Network</a>
+                        <a class="dropdown-item" href="/world/nn">Neural Network</a>
                     </div>
                 </li>
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
                        data-toggle="dropdown"
                        aria-haspopup="true" aria-expanded="false">
-                        United States
+                        US States
                     </a>
                     <div class="dropdown-menu" aria-labelledby="navbarDropdown">
                         <a class="dropdown-item" href="/state/model">Logistic Fit</a>
-{#                        <a class="dropdown-item" href="/state/nn">Nerual Network</a>#}
+                        {#<a class="dropdown-item" href="/state/nn">Nerual Network</a>#}
                     </div>
                 </li>
             </ul>
         </div>
     </nav>
-    <h1 style="text-align: center; margin-bottom: 40px; font-size: 70px; margin-top: 20px">COVID-19 Analysis</h1>
+    {% set url = url_for(request.endpoint).split('/') %}
+    <h1 style="text-align: center; margin-bottom: -10px; font-size: 70px; margin-top: 20px">COVID-19 Analysis</h1>
+    <h3 style="text-align: center; margin-bottom: 40px;">
+        {% if url[1] == 'world' %}
+            Country Predictions
+        {% elif url[1] == 'state' %}
+            US State Predictions
+        {% elif url[1] == 'county' %}
+            US County Predictions
+        {% endif %}
+        {% if url[2] == 'model' %}
+            Using Logistic Regression
+        {% elif url[2] == 'nn' %}
+            Using Neural Networks
+        {% endif %}
+    </h3>
     <div id="start-country" data-country="{{ country }}"></div>
     <script>
         let store = {};
         store.data = {{ data }};
         store.fit = {{ fit }};
-        store.today =
-        {{ date }}
+        store.today = {{ date }};
     </script>
 
     <div class="row" style="margin-bottom: 20px">
@@ -78,12 +92,11 @@
             <input type="text" id="datepicker" required>
         </div>
         <div class="col-lg-6 col-md-6 text-center" id="country-container">
-            {% set url = url_for(request.endpoint).split('/')[1] %}
-            {% if url == "state" %}
+            {% if url[1] == "state" %}
                 <h5><label for="country">Select State: <br></label></h5>
-            {% elif url == "world" %}
+            {% elif url[1] == "world" %}
                 <h5><label for="country">Select Country: <br></label></h5>
-            {% elif url == "county" %}
+            {% elif url[1] == "county" %}
                 <h5><label for="country">Select County: <br></label></h5>
             {% else %}
                 <h5><label for="country">Select: <br></label></h5>
@@ -92,7 +105,12 @@
                 <option value="{{ country }}">{{ country }}</option>
             </select>
         </div>
-        <div class="col-sm-3 text-center"></div>
+        <div class="col-sm-3 text-center" id="population">
+            {% if url[1] != "world" %}
+                <h5>Population:</h5>
+                <h3 class="number">{{ population[country] | number }}</h3>
+            {% endif %}
+        </div>
     </div>
 
     {% block content %}{% endblock %}

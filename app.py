@@ -1,4 +1,4 @@
-from flask import Flask, render_template, jsonify, request, redirect, url_for
+from flask import Flask, render_template, jsonify, request, redirect, url_for, abort
 from datetime import datetime
 
 # from nnData import *
@@ -21,7 +21,8 @@ def model():
     return render_template('model.html', country=country,
                            data=df[df[country] > 0][country].to_dict(),
                            fit=fit,
-                           date=date)
+                           date=date,
+                           population=populations)
 
 
 @app.route('/world/nn')
@@ -36,12 +37,14 @@ def nn():
                                country=country,
                                data=df.to_dict(),
                                fit=dict(),
-                               date=date)
+                               date=date,
+                               population=populations)
     return render_template('nn.html',
                            country=country,
                            data=df.to_dict(),
                            fit=fit.to_dict(),
-                           date=date)
+                           date=date,
+                           population=populations)
 
 
 @app.route('/state/model')
@@ -53,7 +56,8 @@ def state_model():
     return render_template('state_model.html', country=s,
                            data=df['Cases'].to_dict(),
                            fit=fit,
-                           date=date)
+                           date=date,
+                           population=populations)
 
 
 @app.route('/state/_cases')
@@ -103,8 +107,22 @@ def state_options():
     #         tmp = str(sdf['date'].iloc[0])
     #         indexes[s] = '-'.join([tmp[:4], tmp[4:6], tmp[6:]])
     # return jsonify(countries=list(indexes.keys()), min_date=indexes)
-    states, min_dates = get_state_options(date)
-    return jsonify(countries=states.tolist(), min_date=min_dates.to_dict())
+    states, min_dates, populations = get_state_options(date)
+    return jsonify(countries=states.tolist(), min_date=min_dates.to_dict(), populations=populations)
+
+
+@app.route('/county/model')
+def county_model():
+    s = request.args.get('state', 'California', type=str)
+    county = request.args.get('county', 'Orange', type=str)
+    date = request.args.get('date', int(datetime.today().strftime("%y%m%d")), type=int)
+    df = get_county_data(s, county, date)
+    fit = get_county_model(s, county, date, 'Cases')
+    return render_template('county.html', country=s, county=county,
+                           data=df['Cases'].to_dict(),
+                           fit=fit,
+                           date=date,
+                           population=populations)
 
 
 @app.route('/county/_cases')
@@ -167,7 +185,15 @@ def nn_json():
     fit = get_prediction(country, date)
     if fit is not None:
         return jsonify(data=fit.to_dict(), success=True)
+    abort(400)
     return jsonify(data={}, success=False)
+
+
+@app.template_filter()
+def number(n):
+    if n == "Undefined":
+        return None
+    return format(n, ',d')
 
 
 if __name__ == '__main__':

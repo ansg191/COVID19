@@ -1,10 +1,101 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'COVID_Template.html' %}
+{% block title %}COVID19 - County Model{% endblock %}
+{% block styles %}
+    <link rel="stylesheet" href="/static/modelStyles.css">
+{% endblock %}
+{% block content %}
+    <script>
+        store.county = "{{ county }}";
+    </script>
+    <div class="row current" style="padding-bottom: 10px">
+        <div class="col-sm-4 text-center" style="height: 100%" id="current-cases-txt">
+            <h5>Current Cases:</h5>
+            <h3 class="number">0</h3>
+        </div>
+        <div class="col-sm-4 text-center" id="double-rate-txt">
+            <h5>Doubling every:</h5>
+            <h3 class="number">0 days</h3>
+        </div>
+        <div class="col-sm-4 text-center" id="new-cases-txt">
+            <h5>New Cases Today:</h5>
+            <h3 class="number">0</h3>
+        </div>
+    </div>
+    <div class="row pred">
+        <div class="col-sm-4 text-center" id="pred-cases-txt">
+            <h5>Total Predicted Cases:</h5>
+            <h3 class="number">0</h3>
+        </div>
+        <div class="col-sm-4 text-center" style="height: 100%" id="compl-date-txt">
+            <h5>Predicted Completion Date:</h5>
+            <h3 class="number">0</h3>
+        </div>
+        <div class="col-sm-4 text-center" style="height: 100%" id="tom-new-cases-txt">
+            <h5>New Cases Predicted Tomorrow:</h5>
+            <h3 class="number">0</h3>
+        </div>
+    </div>
 
-</body>
-</html>
+    <div class="row" style="height: 450px">
+        <div id="current-cases" class="col-xs-6 col-sm-4" style="height: 100%"></div>
+        <div id="pred-cases" class="col-xs-6 col-sm-8" style="height: 100%"></div>
+    </div>
+
+    <div id="log-cases"></div>
+    <div id="new-vs-total"></div>
+
+    <div class="row">
+        <div id="new-cases" class="col-xs-6 col-sm-5" style="height: 450px"></div>
+        <div id="new-pred-cases" class="col-xs-6 col-sm-7" style="height: 450px"></div>
+    </div>
+
+    <div id="growth-rate"></div>
+
+    <div class="row current">
+        <div class="col-sm-4 text-center" style="height: 100%" id="current-deaths-txt">
+            <h5>Current Deaths:</h5>
+            <h3 class="number">0</h3>
+        </div>
+        <div class="col-sm-4 text-center" id="death-rate-txt">
+            <h5>Case-Fatality Ratio:</h5>
+            <h3 class="number">0</h3>
+        </div>
+        <div class="col-sm-4 text-center" id="new-deaths-txt">
+            <h5>New Deaths:</h5>
+            <h3 class="number">0</h3>
+        </div>
+    </div>
+    <div class="row pred">
+        <div class="col-sm-4 text-center" style="height: 100%" id="pred-deaths-txt">
+            <h5>Predicted Deaths using Model:</h5>
+            <h3 class="number">0</h3>
+        </div>
+        <div class="col-sm-4 text-center" id="pred-deaths-dr-txt">
+            <h5>Predicted Deaths using Death Rate:</h5>
+            <h3 class="number">0</h3>
+        </div>
+        <div class="col-sm-4 text-center" id="tom-new-deaths-txt">
+            <h5>New Deaths Predicted Tomorrow:</h5>
+            <h3 class="number">0</h3>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-5 text-center">
+            <div id="current-deaths"></div>
+        </div>
+        <div class="col-sm-7 text-center">
+            <div id="pred-deaths"></div>
+        </div>
+    </div>
+
+    <div id="death-rate"></div>
+{% endblock %}
+
+{% block scripts %}
+    <script src="/static/county_model.js"></script>
+{% endblock %}
+{% block datasource %}
+    <a href="https://www.arcgis.com/apps/opsdashboard/index.html#/bda7594740fd40299423467b48e9ecf6/">
+        COVID-19 Dashboard by the CSSE at Johns Hopkins University</a>
+{% endblock %}

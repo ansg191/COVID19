@@ -3,66 +3,67 @@
 store.state = $('#start-country').data('country');
 store.options = {
     countries: [],
-    min_date: {}
+    min_date: {},
+    populations: {}
 };
-let stateTable = {
-    'AK': 'Alaska',
-    'AL': 'Alabama',
-    'AR': 'Arkansas',
-    'AS': 'American Samoa',
-    'AZ': 'Arizona',
-    'CA': 'California',
-    'CO': 'Colorado',
-    'CT': 'Connecticut',
-    'DC': 'District of Columbia',
-    'DE': 'Delaware',
-    'FL': 'Florida',
-    'GA': 'Georgia',
-    'GU': 'Guam',
-    'HI': 'Hawaii',
-    'IA': 'Iowa',
-    'ID': 'Idaho',
-    'IL': 'Illinois',
-    'IN': 'Indiana',
-    'KS': 'Kansas',
-    'KY': 'Kentucky',
-    'LA': 'Louisiana',
-    'MA': 'Massachusetts',
-    'MD': 'Maryland',
-    'ME': 'Maine',
-    'MI': 'Michigan',
-    'MN': 'Minnesota',
-    'MO': 'Missouri',
-    'MP': 'Northern Mariana Islands',
-    'MS': 'Mississippi',
-    'MT': 'Montana',
-    'NC': 'North Carolina',
-    'ND': 'North Dakota',
-    'NE': 'Nebraska',
-    'NH': 'New Hampshire',
-    'NJ': 'New Jersey',
-    'NM': 'New Mexico',
-    'NV': 'Nevada',
-    'NY': 'New York',
-    'OH': 'Ohio',
-    'OK': 'Oklahoma',
-    'OR': 'Oregon',
-    'PA': 'Pennsylvania',
-    'PR': 'Puerto Rico',
-    'RI': 'Rhode Island',
-    'SC': 'South Carolina',
-    'SD': 'South Dakota',
-    'TN': 'Tennessee',
-    'TX': 'Texas',
-    'UT': 'Utah',
-    'VA': 'Virginia',
-    'VI': 'US Virgin Islands',
-    'VT': 'Vermont',
-    'WA': 'Washington',
-    'WI': 'Wisconsin',
-    'WV': 'West Virginia',
-    'WY': 'Wyoming'
-}
+// let stateTable = {
+//     'AK': 'Alaska',
+//     'AL': 'Alabama',
+//     'AR': 'Arkansas',
+//     'AS': 'American Samoa',
+//     'AZ': 'Arizona',
+//     'CA': 'California',
+//     'CO': 'Colorado',
+//     'CT': 'Connecticut',
+//     'DC': 'District of Columbia',
+//     'DE': 'Delaware',
+//     'FL': 'Florida',
+//     'GA': 'Georgia',
+//     'GU': 'Guam',
+//     'HI': 'Hawaii',
+//     'IA': 'Iowa',
+//     'ID': 'Idaho',
+//     'IL': 'Illinois',
+//     'IN': 'Indiana',
+//     'KS': 'Kansas',
+//     'KY': 'Kentucky',
+//     'LA': 'Louisiana',
+//     'MA': 'Massachusetts',
+//     'MD': 'Maryland',
+//     'ME': 'Maine',
+//     'MI': 'Michigan',
+//     'MN': 'Minnesota',
+//     'MO': 'Missouri',
+//     'MP': 'Northern Mariana Islands',
+//     'MS': 'Mississippi',
+//     'MT': 'Montana',
+//     'NC': 'North Carolina',
+//     'ND': 'North Dakota',
+//     'NE': 'Nebraska',
+//     'NH': 'New Hampshire',
+//     'NJ': 'New Jersey',
+//     'NM': 'New Mexico',
+//     'NV': 'Nevada',
+//     'NY': 'New York',
+//     'OH': 'Ohio',
+//     'OK': 'Oklahoma',
+//     'OR': 'Oregon',
+//     'PA': 'Pennsylvania',
+//     'PR': 'Puerto Rico',
+//     'RI': 'Rhode Island',
+//     'SC': 'South Carolina',
+//     'SD': 'South Dakota',
+//     'TN': 'Tennessee',
+//     'TX': 'Texas',
+//     'UT': 'Utah',
+//     'VA': 'Virginia',
+//     'VI': 'US Virgin Islands',
+//     'VT': 'Vermont',
+//     'WA': 'Washington',
+//     'WI': 'Wisconsin',
+//     'WV': 'West Virginia',
+//     'WY': 'Wyoming'
+// }
 
 $('document').ready(function () {
     // getData(store.state);
@@ -137,6 +138,7 @@ let countryChange = function (state) {
         console.log("Switching to ", state);
         $("#country").blur();
         store.state = state;
+        $('#population h3').text(store.options.populations[store.state].toLocaleString());
         $('.ui.search.selection.dropdown .text').css({'font-size': '35px', 'top': '4px'});
         let parts = store.options.min_date[store.state].split('-');
         store.picker.setMinDate(new Date(parts[0], parts[1] - 1, parts[2]));
@@ -225,7 +227,7 @@ let updateCaseText = function (y, x0, y0, currentDay) {
     $('#pred-cases-txt').find('h3').text(y0[y0.length - 1].toLocaleString());
     $('#tom-new-cases-txt').find('h3').text((y0[currentDay + 1] - y0[currentDay]).toLocaleString());
     $('#double-rate-txt h3').text((y.length - y.findIndex(n => n > y[y.length - 1] / 2)).toLocaleString() + " days");
-    $('#compl-date-txt h3').text((new Date(2020, 2, 4)).addDays(x0[x0.length - 1]).toDateString())
+    $('#compl-date-txt h3').text((new Date(2020, 0, 22)).addDays(x0[x0.length - 1]).toDateString())
     $('#new-cases-txt h3').text((y[y.length - 1] - y[y.length - 2]).toLocaleString());
 };
 

@@ -1,12 +1,15 @@
+// let store = {};
 // store.today = Math.floor((new Date() - new Date(2019, 11, 31)) / 86400000);
-store.country = $('#start-country').data('country');
+store.state = $('#start-country').data('country');
 store.options = {
     countries: [],
     min_date: {}
 };
 
 $('document').ready(function () {
-    // getData(store.country);
+    // getData(store.state);
+    draw(store.data, store.fit);
+    // getDeathData(store.state);
     store.picker = new Pikaday({
         field: document.getElementById('datepicker'),
         minDate: new Date(2020, 0, 1),
@@ -14,25 +17,28 @@ $('document').ready(function () {
         defaultDate: (new Date(2019, 11, 31)).addDays(store.today),
         setDefaultDate: true,
         onSelect: function (e) {
-            store.today = Math.round((e - new Date(2019, 11, 31)) / 86400000);
+            store.today = e.yyyymmdd() - 1;
             console.log("Changing date to ", store.today);
             updateOptions(store.today);
-            getData(store.country);
+            getData(store.state);
         }
     });
     $('#country').dropdown({
         onChange: function (value, text, $selectedItem) {
-            countryChange(value);
+            if (text !== store.state) {
+                countryChange(value);
+            }
         }
     });
     $('.ui.search.selection.dropdown').css({'width': '75%', 'text-align': 'center', 'height': '50px'});
+    $('.ui.search.selection.dropdown .text').css({'font-size': '35px', 'top': '4px'});
     updateOptions(store.today);
 });
 
 let updateOptions = function (date) {
     $.when(
         $.ajax({
-            url: "/_get_country_options",
+            url: "_options",
             dataType: 'json',
             data: {date: date},
             success: function (e) {
@@ -51,33 +57,36 @@ let updateOptions = function (date) {
         let values = [];
         for (let i = 0; i < store.options.countries.length; i++) {
             // console.log(store.options.countries);
-            let country = store.options.countries[i];
-            values.push({value: country, text: country, name: country});
+            let state = store.options.countries[i];
+            values.push({value: state, text: state, name: state});
         }
         // console.log(values);
         let dropdown = $('#country');
         dropdown.dropdown('change values', values);
-        dropdown.dropdown('set selected', store.country);
-        $(".ui.search.selection.dropdown div:eq(1) .item").css('font-size', '15px');
+        dropdown.dropdown('set selected', store.state);
+        let items = $(".ui.search.selection.dropdown div:eq(1) .item")
+        items.css('font-size', '15px').each(function () {
+            $(this).text($(this).data('text'));
+        });
         $(".ui.search.selection.dropdown input").css({'top': '-20px', 'text-align': 'center', 'font-size': '35px'});
-        let parts = store.options.min_date[store.country].split('-');
+        let parts = store.options.min_date[store.state].split('-');
         store.picker.setMinDate(new Date(parts[0], parts[1] - 1, parts[2]));
     })
 };
 
-let countryChange = function (country) {
-    if (store.options.countries.includes(country)) {
-        console.log("Switching to ", country);
+let countryChange = function (state) {
+    if (store.options.countries.includes(state)) {
+        console.log("Switching to ", state);
         $("#country").blur();
-        store.country = country;
+        store.state = state;
         $('.ui.search.selection.dropdown .text').css({'font-size': '35px', 'top': '4px'});
-        let parts = store.options.min_date[store.country].split('-');
+        let parts = store.options.min_date[store.state].split('-');
         store.picker.setMinDate(new Date(parts[0], parts[1] - 1, parts[2]));
-        getData(country);
+        getData(state);
     }
 };
 
-let getData = function (country) {
+let getData = function (state) {
     // $.ajax({
     //     url: "_get_country_cases",
     //     dataType: 'json',
@@ -95,46 +104,38 @@ let getData = function (country) {
     // });
     $.when(
         $.ajax({
-            url: "/_get_country_cases",
+            url: "_cases",
             dataType: 'json',
-            data: {country: country, date: store.today},
+            data: {state: state, date: store.today},
             success: function (data) {
                 store.data = data;
             }
         }),
+        $.ajax({
+            url: "_lmfit_cases",
+            dataType: 'json',
+            data: {state: state, date: store.today},
+            success: function (fit) {
+                store.fit = fit;
+            }
+        })
     ).then(function () {
-        getNN(country, store.today)
         draw(store.data, store.fit);
+        getDeathData(store.state);
     });
 };
-
-let getNN = function (country, date) {
-    $.ajax({
-        url: "/_get_nn_cases",
-        dataType: 'json',
-        async: false,
-        data: {country: country, date: date},
-        success: function (fit) {
-            if (fit['success']) {
-                store.fit = fit['data'];
-            } else {
-                store.fit = {}
-            }
-        },
-        error: function (XMLHttpRequest, textStatus, errorThrown) {
-            if (errorThrown === "BAD REQUEST") {
-                console.warn("Retrying with " + (date - 1));
-                getNN(country, date - 1);
-            }
-        }
-    })
-}
 
 Date.prototype.addDays = function (days) {
     let date = new Date(this.valueOf());
     date.setDate(date.getDate() + days);
     return date;
 };
+
+Date.prototype.yyyymmdd = function () {
+    let mm = this.getMonth() + 1;
+    let dd = this.getDate();
+    return parseInt([this.getFullYear() - 2000, (mm > 9 ? '' : '0') + mm, (dd > 9 ? '' : '0') + dd].join(''));
+}
 
 let diff = function (x) {
     let arr = [0];
@@ -161,14 +162,12 @@ let shift = function (x) {
     return arr;
 };
 
-let updateCaseText = function (currentDay, y, x0, y0) {
-    const max = Math.max(...y0);
-    const index = x0.findIndex(n => n === currentDay + 1);
+let updateCaseText = function (y, x0, y0, currentDay) {
     $('#current-cases-txt').find('h3').text(y[y.length - 1].toLocaleString());
-    $('#pred-cases-txt').find('h3').text(max.toLocaleString());
-    $('#tom-new-cases-txt').find('h3').text((y0[index] - y[y.length - 1]).toLocaleString());
+    $('#pred-cases-txt').find('h3').text(y0[y0.length - 1].toLocaleString());
+    $('#tom-new-cases-txt').find('h3').text((y0[currentDay + 1] - y0[currentDay]).toLocaleString());
     $('#double-rate-txt h3').text((y.length - y.findIndex(n => n > y[y.length - 1] / 2)).toLocaleString() + " days");
-    $('#compl-date-txt h3').text((new Date(2019, 11, 31)).addDays(x0[y0.indexOf(max)]).toDateString())
+    $('#compl-date-txt h3').text((new Date(2020, 0, 22)).addDays(x0[x0.length - 1]).toDateString())
     $('#new-cases-txt h3').text((y[y.length - 1] - y[y.length - 2]).toLocaleString());
 };
 
@@ -182,8 +181,8 @@ let draw = function (data, fit) {
     });
     let y0 = Object.values(fit);
     let currentDay = x[x.length - 1];
-    updateCaseText(currentDay, y, x0, y0);
-    currentCases(x, y);
+    updateCaseText(y, x0, y0, x0.indexOf(currentDay));
+    currentCases(x, y, x0, y0, currentDay);
     predCases(x, y, x0, y0);
     logCases(x, y, x0, y0);
     newVsTotal(y, y0);
@@ -192,13 +191,21 @@ let draw = function (data, fit) {
     growthRate(x, y);
 };
 
-let currentCases = function (x, y) {
+let currentCases = function (x, y, x0, y0, currentDay) {
     let trace1 = {
         x: x,
         y: y,
         mode: 'markers',
         type: 'scatter',
         name: 'Data'
+    };
+    let index = x0.indexOf(currentDay);
+    let trace2 = {
+        x: x0.slice(0, index + 1),
+        y: y0.slice(0, index + 1),
+        mode: 'lines',
+        type: 'scatter',
+        name: 'Fit'
     };
     let layout = {
         title: {text: 'Total Cases', y: 0.9, x: 0.5, xanchor: 'center', yanchor: 'bottom'},
@@ -209,7 +216,7 @@ let currentCases = function (x, y) {
         // plot_bgcolor: "rgba(56,252,255,0.24)"
     };
     let config = {responsive: true};
-    Plotly.newPlot('current-cases', [trace1], layout, config);
+    Plotly.newPlot('current-cases', [trace1, trace2], layout, config);
 };
 
 let predCases = function (x, y, x0, y0) {
@@ -251,8 +258,8 @@ let logCases = function (x, y, x0, y0) {
         name: 'Data'
     };
     let trace2 = {
-        x: x0,
-        y: y0,
+        x: x0.slice(index),
+        y: y0.slice(index),
         mode: 'lines',
         type: 'scatter',
         name: 'Prediction'
@@ -364,7 +371,7 @@ let newPredCases = function (x, y, x0, y0, currentDay) {
     };
 
     let index2 = x0.indexOf(currentDay);
-    let index3 = y0Diff.slice(index2).findIndex(n => n < 100);
+    let index3 = y0Diff.slice(index2).findIndex(n => n < 10);
     let trace2 = {
         x: x0.slice(index2 + 1, index3 + index2),
         y: y0Diff.slice(index2 + 1, index3 + index2),
