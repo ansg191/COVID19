@@ -18,6 +18,7 @@ let getDeathData = function (country) {
         })
     ).then(function () {
         deathDraw(store.data2, store.fit2)
+        changeFromLoader();
     })
 };
 

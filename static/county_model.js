@@ -30,6 +30,7 @@ $('document').ready(function () {
             }
         }
     });
+    $('#county').dropdown();
     $('.ui.search.selection.dropdown').css({'width': '75%', 'text-align': 'center', 'height': '50px'});
     $('.ui.search.selection.dropdown .text').css({'font-size': '35px', 'top': '4px'});
     updateOptions(store.today);

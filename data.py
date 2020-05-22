@@ -196,8 +196,25 @@ def get_county_model(s, county, date, tp):
 
 
 def get_county_options(date):
-    df = get_us_data(date)
-    
+    global population_county
+    df = get_us_data(date).iloc[:, 5:]
+    df2 = get_us_data2(date)
+    tmp = df.groupby(['Province_State', 'Admin2']).sum()#.select_dtypes(['number'])
+    tmp2 = tmp.iloc[:, -1].sort_values(ascending=False).gt(100)
+    tmp2 = np.array([*tmp2.loc[tmp2].index.values])
+    counties = dict()
+    for s in np.unique(tmp2[:, 0]):
+        counties[s] = tmp2[tmp2[:, 0] == s][:, 1].tolist()
+    states = list(counties.keys())
+    tmp2 = tmp.iloc[:, 5:].gt(100).T.idxmax().apply(date_to_str)
+    min_dates = dict()
+    for s, c in tmp2.index:
+        if s not in min_dates:
+            min_dates[s] = {}
+        min_dates[s][c] = tmp2.loc[(s, c)]
+    tmp = df2.groupby(['Province_State', 'Admin2'])['Population'].sum()
+    population_county = {s: tmp.xs(s).to_dict() for s in np.unique(np.array([*tmp.index.values])[:, 0])}
+    return states, counties, min_dates, population_county
 
 
 def get_fit(df, country):

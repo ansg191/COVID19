@@ -134,6 +134,13 @@ def county_cases():
     return jsonify(df['Cases'].to_dict())
 
 
+@app.route('/county/_options')
+def county_options():
+    date = request.args.get('date', int(datetime.today().strftime("%y%m%d")), type=int)
+    states, counties, min_dates, populations = get_county_options(date)
+    return jsonify(countries=states, counties=counties, min_date=min_dates, populations=populations)
+
+
 @app.route('/_get_country_cases')
 def cases_json():
     country = request.args.get('country', 'United States', type=str)
@@ -191,9 +198,10 @@ def nn_json():
 
 @app.template_filter()
 def number(n):
-    if n == "Undefined":
+    try:
+        return format(n, ',d')
+    except ValueError:
         return None
-    return format(n, ',d')
 
 
 if __name__ == '__main__':

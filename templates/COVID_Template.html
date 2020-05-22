@@ -44,8 +44,8 @@
                         World
                     </a>
                     <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                        <a class="dropdown-item" href="/world/model">Logistic Fit</a>
-                        <a class="dropdown-item" href="/world/nn">Neural Network</a>
+                        <a class="dropdown-item" href="{{ url_for('model') }}">Logistic Fit</a>
+                        <a class="dropdown-item" href="{{ url_for('nn') }}">Neural Network</a>
                     </div>
                 </li>
                 <li class="nav-item dropdown">
@@ -55,7 +55,7 @@
                         US States
                     </a>
                     <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                        <a class="dropdown-item" href="/state/model">Logistic Fit</a>
+                        <a class="dropdown-item" href="{{ url_for('state_model') }}">Logistic Fit</a>
                         {#<a class="dropdown-item" href="/state/nn">Nerual Network</a>#}
                     </div>
                 </li>
@@ -91,20 +91,35 @@
             <h5><label for="datepicker">Last Updated:</label></h5>
             <input type="text" id="datepicker" required>
         </div>
-        <div class="col-lg-6 col-md-6 text-center" id="country-container">
-            {% if url[1] == "state" %}
+        {% if url[1] != 'county' %}
+            <div class="col-lg-6 col-md-6 text-center" id="country-container">
+                {% if url[1] == "state" %}
+                    <h5><label for="country">Select State: <br></label></h5>
+                {% elif url[1] == "world" %}
+                    <h5><label for="country">Select Country: <br></label></h5>
+                {% elif url[1] == "county" %}
+                    <h5><label for="country">Select County: <br></label></h5>
+                {% else %}
+                    <h5><label for="country">Select: <br></label></h5>
+                {% endif %}
+                <select class="ui search selection dropdown" id="country">
+                    <option value="{{ country }}">{{ country }}</option>
+                </select>
+            </div>
+        {% else %}
+            <div class="col-lg-3 col-md-3 text-center" id="country-container">
                 <h5><label for="country">Select State: <br></label></h5>
-            {% elif url[1] == "world" %}
-                <h5><label for="country">Select Country: <br></label></h5>
-            {% elif url[1] == "county" %}
-                <h5><label for="country">Select County: <br></label></h5>
-            {% else %}
-                <h5><label for="country">Select: <br></label></h5>
-            {% endif %}
-            <select class="ui search selection dropdown" id="country">
-                <option value="{{ country }}">{{ country }}</option>
-            </select>
-        </div>
+                <select class="ui search selection dropdown" id="country">
+                    <option value="{{ country }}">{{ country }}</option>
+                </select>
+            </div>
+            <div class="col-lg-3 col-md-3 text-center" id="country-container">
+                <h5><label for="county">Select County: <br></label></h5>
+                <select class="ui search selection dropdown" id="county">
+                    <option value="{{ county }}">{{ county }}</option>
+                </select>
+            </div>
+        {% endif %}
         <div class="col-sm-3 text-center" id="population">
             {% if url[1] != 'world' %}
                 <h5>Population</h5>
@@ -117,38 +132,45 @@
         </div>
     </div>
 
-    <div class="row current" style="padding-bottom: 10px">
+    <div class="row current" style="height: 130px">
         <div class="col-sm-4 text-center" style="height: 100%" id="current-cases-txt">
             <h5>Current Cases:</h5>
             <h3 class="number">0</h3>
+            <div class="ui loader number-loader"></div>
         </div>
         <div class="col-sm-4 text-center" id="double-rate-txt">
             <h5>Doubling every:</h5>
             <h3 class="number">0 days</h3>
+            <div class="ui loader number-loader"></div>
         </div>
         <div class="col-sm-4 text-center" id="new-cases-txt">
             <h5>New Cases Today:</h5>
             <h3 class="number">0</h3>
+            <div class="ui loader number-loader"></div>
         </div>
     </div>
-    <div class="row pred">
+    <div class="row pred" style="height: 130px;">
         <div class="col-sm-4 text-center" id="pred-cases-txt">
             <h5>Total Predicted Cases:</h5>
             <h3 class="number">0</h3>
+            <div class="ui loader number-loader"></div>
         </div>
         <div class="col-sm-4 text-center" style="height: 100%" id="compl-date-txt">
             <h5>Predicted Completion Date:</h5>
             <h3 class="number">0</h3>
+            <div class="ui loader number-loader"></div>
         </div>
         <div class="col-sm-4 text-center" style="height: 100%" id="tom-new-cases-txt">
             <h5>New Cases Predicted Tomorrow:</h5>
             <h3 class="number">0</h3>
+            <div class="ui loader number-loader"></div>
         </div>
     </div>
     {% block content %}{% endblock %}
 </div>
 <footer class="text-center panel-footer" style="margin: 30px 0 100px 0">
-    <p style="font-size: 18px">Created by: Anshul Gupta | <a href="https://github.com/Ansh191/COVID19">Github</a> | Data Source:
+    <p style="font-size: 18px">Created by: Anshul Gupta | <a href="https://github.com/Ansh191/COVID19">Github</a> | Data
+        Source:
         {% block datasource %}{% endblock %}</p>
 </footer>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>

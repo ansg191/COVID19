@@ -74,12 +74,12 @@ select:focus {
 
 div.current {
     background: #7AE2FB;
-    padding-bottom: 10px;
+    padding-bottom: 0;
 }
 
 div.pred {
     background: #f5b84e;
-    padding-bottom: 10px;
+    padding-bottom: 0;
 }
 
 html {
@@ -93,7 +93,8 @@ html {
     z-index: 1;
     top: 0;
     left: 0;
-    overflow-x: hidden
+    overflow-x: hidden;
+    transition: visibility 1s, opacity 1s linear;
 }
 
 .navbar-brand {
@@ -108,4 +109,26 @@ html {
     font-size: 18px;
     padding-top: 10px;
     padding-bottom: 10px;
+}
+
+.ui.dimmer {
+    position: static;
+    justify-content: normal;
+    align-items: normal;
+}
+
+.ui.loader {
+    position: relative;
+    visibility: hidden;
+    opacity: 0;
+    transition: visibility 1s, opacity 1s linear;
+}
+
+.number-loader {
+    margin-top: -25px !important;
+    top: -40% !important;
+}
+
+.plot-container.plotly {
+    transition: visibility 1s, opacity 1s linear;
 }
