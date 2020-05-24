@@ -5,19 +5,19 @@
 {% endblock %}
 {% block content %}
     <div class="row" style="height: 450px">
-        <div id="current-cases" class="col-xs-6 col-sm-4" style="height: 100%"></div>
-        <div id="pred-cases" class="col-xs-6 col-sm-8" style="height: 100%"></div>
+        <div id="current-cases" class="col-xs-6 col-sm-4" style="height: 100%"><div class="ui loader"></div></div>
+        <div id="pred-cases" class="col-xs-6 col-sm-8" style="height: 100%"><div class="ui loader"></div></div>
     </div>
 
-    <div id="log-cases"></div>
-    <div id="new-vs-total"></div>
+    <div id="log-cases"><div class="ui loader"></div></div>
+    <div id="new-vs-total"><div class="ui loader"></div></div>
 
     <div class="row">
-        <div id="new-cases" class="col-xs-6 col-sm-5" style="height: 450px"></div>
-        <div id="new-pred-cases" class="col-xs-6 col-sm-7" style="height: 450px"></div>
+        <div id="new-cases" class="col-xs-6 col-sm-5" style="height: 450px"><div class="ui loader"></div></div>
+        <div id="new-pred-cases" class="col-xs-6 col-sm-7" style="height: 450px"><div class="ui loader"></div></div>
     </div>
 
-    <div id="growth-rate"></div>
+    <div id="growth-rate"><div class="ui loader"></div></div>
 {% endblock %}
 
 {% block scripts %}

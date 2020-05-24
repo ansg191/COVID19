@@ -200,7 +200,7 @@ def nn_json():
 def number(n):
     try:
         return format(n, ',d')
-    except ValueError:
+    except (ValueError, TypeError):
         return None
 
 

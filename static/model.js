@@ -75,7 +75,7 @@ let updateOptions = function (date) {
 let countryChange = function (country) {
     if (store.options.countries.includes(country)) {
         console.log("Switching to ", country);
-        $("#country").blur();
+        $("#country").focus().blur();
         store.country = country;
         $('.ui.search.selection.dropdown .text').css({'font-size': '35px', 'top': '4px'});
         let parts = store.options.min_date[store.country].split('-');

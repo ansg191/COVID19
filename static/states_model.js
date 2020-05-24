@@ -136,7 +136,7 @@ let updateOptions = function (date) {
 let countryChange = function (state) {
     if (store.options.countries.includes(state)) {
         console.log("Switching to ", state);
-        $("#country").blur();
+        $("#country").focus().blur();
         store.state = state;
         $('#population h3').text(store.options.populations[store.state].toLocaleString());
         $('.ui.search.selection.dropdown .text').css({'font-size': '35px', 'top': '4px'});

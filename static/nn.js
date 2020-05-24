@@ -29,6 +29,26 @@ $('document').ready(function () {
     updateOptions(store.today);
 });
 
+let changeToLoader = function () {
+    $('.plot-container.plotly').css({'visibility': 'hidden', 'opacity': '0'});
+    $('.ui.loader').css({'visibility': 'visible', 'opacity': '1'});
+    let plots = $(".js-plotly-plot");
+    plots.addClass("ui active inverted dimmer");
+    let numbers = $('.number');
+    numbers.css({'visibility': 'visible', 'opacity': 0});
+    numbers.parent().addClass('ui active inverted dimmer');
+}
+
+let changeFromLoader = function() {
+    let plots = $(".js-plotly-plot");
+    plots.removeClass("ui active inverted dimmer");
+    $('.plot-container.plotly').css({'visibility': 'visible', 'opacity': '1'});
+    $('.ui.loader').css({'visibility': 'hidden', 'opacity': '0'});
+    let numbers = $('.number');
+    numbers.css({'visibility': 'visible', 'opacity': 1});
+    numbers.parent().removeClass('ui active inverted dimmer');
+}
+
 let updateOptions = function (date) {
     $.when(
         $.ajax({
@@ -93,6 +113,7 @@ let getData = function (country) {
     //         });
     //     }
     // });
+    changeToLoader();
     $.when(
         $.ajax({
             url: "/_get_country_cases",
@@ -105,6 +126,7 @@ let getData = function (country) {
     ).then(function () {
         getNN(country, store.today)
         draw(store.data, store.fit);
+        changeFromLoader();
     });
 };
 

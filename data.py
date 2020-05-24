@@ -221,7 +221,20 @@ def get_fit(df, country):
     x, y = df[df[country] > 0][country].index.values, df[df[country] > 0][country].values
     mod = StepModel(form='logistic')
     pars = mod.guess(y, x=x)
+    # Give weight to highest points
     fit = mod.fit(y, pars, x=x, weights=(1 / (y + 1e-3))[::-1])
+
+    # Or give weight to newest points
+    # fit = mod.fit(y, pars, x=x, weights=(1 / (x + 1e-3))[::-1])
+
+    # Or give weight to least and highest points using sech
+    # y_max = y.max()
+    # coe = 10 / y_max
+    # fit = mod.fit(y, pars, x=x, weights=(1 - 1/np.cosh(coe*(y - y_max / 2))))
+
+    # Or give weight to least and highest points using polynomial
+    # y_max = y.max()
+    # fit = mod.fit(y, pars, x=x, weights=pow(y - y_max / 2, 4) / pow(y_max / 2, 4))
     return fit
 
 
