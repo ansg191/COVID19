@@ -14,7 +14,7 @@ def hello_world():
 
 @app.route('/world/model')
 def model():
-    country = request.args.get('country', 'United States', type=str)
+    country = request.args.get('country', 'World', type=str)
     date = request.args.get('date', (datetime.today() - datetime(2019, 12, 31)).days, type=int)
     df = get_data(date)
     fit = get_model(country, date)
@@ -27,7 +27,7 @@ def model():
 
 @app.route('/world/nn')
 def nn():
-    country = request.args.get('country', 'United States', type=str)
+    country = request.args.get('country', 'World', type=str)
     date = request.args.get('date', (datetime.today() - datetime(2019, 12, 31)).days, type=int)
     df = get_data(date)
     df = df[df[country] > 0][country]
